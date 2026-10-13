@@ -13,7 +13,7 @@ class ProjectTypesTableSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('project_types')->insert([
+        DB::table('project_types')->insertOrIgnore([
             ['name' => 'Goods'],
             ['name' => 'Works'],
             ['name' => 'Services'],

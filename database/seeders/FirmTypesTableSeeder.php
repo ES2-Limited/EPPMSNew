@@ -13,7 +13,7 @@ class FirmTypesTableSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('firm_types')->insert([
+        DB::table('firm_types')->insertOrIgnore([
             ['name' => 'contractor'],
             ['name' => 'consultant'],
         ]);

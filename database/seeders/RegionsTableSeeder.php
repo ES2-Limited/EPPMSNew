@@ -12,7 +12,7 @@ class RegionsTableSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('regions')->insert([
+        DB::table('regions')->insertOrIgnore([
             [
                 'name' => 'Abuja Regional Office',
                 'created_at' => now(),

@@ -13,19 +13,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory(10)->create();
-
         $this->call(OfficeTypeSeeder::class);
         $this->call(RoleCategorySeeder::class);
-
         $this->call(RolesAndPermissionsSeeder::class);
 
-        $user =  User::factory()->create([
-            'name' => 'DSD EPPMS',
-            'email' => 'dsd@eppms.com',
-            'password' => 'DSDPassword',
-        ]);
-        $user->assignRole('admin');
+        $admin = User::firstOrCreate(
+            ['email' => 'dsd@eppms.com'],
+            [
+                'name' => 'DSD EPPMS',
+                'password' => 'DSDPassword',
+            ]
+        );
+        $admin->assignRole('admin');
+
+        // Optional standard user for testing
+        $manager = User::firstOrCreate(
+            ['email' => 'manager@eppms.com'],
+            [
+                'name' => 'Project Manager',
+                'password' => 'ManagerPassword',
+            ]
+        );
+        $manager->assignRole('admin');
 
         $this->call(StatesTableSeeder::class);
         $this->call(LgaTableSeeder::class);
