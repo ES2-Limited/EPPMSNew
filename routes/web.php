@@ -35,16 +35,27 @@ Route::get('/', function () {
 });
 
 Route::get('/ping', function () {
+    $dbTest = false;
+    $userCount = 0;
+    $dbError = null;
+    try {
+        $dbTest = \Illuminate\Support\Facades\DB::connection()->getPdo() ? true : false;
+        $userCount = \App\Models\User::count();
+    } catch (\Throwable $e) {
+        $dbError = $e->getMessage();
+    }
+
     return response()->json([
         'status' => 'ok',
         'php' => PHP_VERSION,
         'pdo_drivers' => \PDO::getAvailableDrivers(),
         'db_connection' => config('database.default'),
-        'extensions' => [
-            'pdo_sqlite' => extension_loaded('pdo_sqlite'),
-            'sqlite3' => extension_loaded('sqlite3'),
-            'pdo_mysql' => extension_loaded('pdo_mysql'),
-        ],
+        'db_connected' => $dbTest,
+        'user_count' => $userCount,
+        'db_error' => $dbError,
+        'database_file_exists' => file_exists(database_path('database.sqlite')),
+        'database_file_size' => file_exists(database_path('database.sqlite')) ? filesize(database_path('database.sqlite')) : 0,
+        'database_path' => database_path('database.sqlite'),
     ]);
 });
 
