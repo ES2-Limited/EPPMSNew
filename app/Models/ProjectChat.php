@@ -21,6 +21,6 @@ class ProjectChat extends Model
 
     public function project()
     {
-        return $this->belongsTo(Project::class, 'task_ulid', 'ulid');
+        return $this->belongsTo(Project::class, 'project_ulid', 'ulid');
     }
 }

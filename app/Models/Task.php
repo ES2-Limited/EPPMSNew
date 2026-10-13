@@ -7,10 +7,11 @@ use App\Traits\HasUlid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Task extends Model
 {
-    use HasFactory, HasUlid;
+    use HasFactory, HasUlid, SoftDeletes;
 
     protected $casts = [
         'status' => Status::class,
@@ -25,6 +26,7 @@ class Task extends Model
         'due_date',
         'cost',
         'gap',
+        'deleted_by',
     ];
 
     public function milestone(): BelongsTo

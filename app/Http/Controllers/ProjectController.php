@@ -146,6 +146,7 @@ class ProjectController extends Controller
     public function show($ulid)
     {
         $project = Project::where('ulid', $ulid)->with('contractor')->with(['milestones.tasks.images'])->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('view', $project);
         $messages = ProjectChat::where('project_ulid', $ulid)->orderBy('created_at')->get();
 
         $recentImages = TaskImage::whereHas('task', function ($query) use ($ulid) {

@@ -22,6 +22,7 @@ class MilestoneController extends Controller
     {
         $project_ulid = $request->project_ulid;
         $project = Project::where('ulid', $project_ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('view', $project);
         $milestones = Milestone::where('project_ulid', $project_ulid)->with(['project', 'tasks'])->paginate();
         return view('projects.milestones.index',  compact('milestones', 'project'));
     }
@@ -56,6 +57,7 @@ class MilestoneController extends Controller
     public function show(Milestone $milestone, $ulid)
     {
         $milestone = Milestone::where('ulid', $ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('view', $milestone);
         $messages = MilestoneChatMessage::where('milestone_ulid', $ulid)->orderBy('created_at')->get();
         return view('projects.milestones.show', compact('milestone', 'messages'));
     }
@@ -99,6 +101,7 @@ class MilestoneController extends Controller
     public function upload(Request $request, $ulid)
     {
         $milestone = Milestone::where('ulid', $ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('upload', $milestone);
 
         $request->validate([
             'images.*' => 'image|mimes:jpeg,png,jpg|max:3048',
@@ -142,6 +145,9 @@ class MilestoneController extends Controller
 
     public function get_milestone_data($ulid)
     {
+        $project = Project::where('ulid', $ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('view', $project);
+
         $milestones = Milestone::where('project_ulid', $ulid)
             ->select('name', 'deadline')
             ->orderBy('deadline')

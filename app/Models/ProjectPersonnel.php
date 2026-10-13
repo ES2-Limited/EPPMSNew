@@ -38,4 +38,9 @@ class ProjectPersonnel extends Model
     {
         return $this->belongsTo(Unit::class);
     }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(\Spatie\Permission\Models\Role::class, 'role_id');
+    }
 }

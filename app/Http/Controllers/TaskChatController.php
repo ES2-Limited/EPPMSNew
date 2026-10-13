@@ -11,6 +11,8 @@ class TaskChatController extends Controller
 {
     public function index($ulid)
     {
+        $task = Task::where('ulid', $ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('chat', $task);
         $messages = TaskChatMessage::where('task_ulid', $ulid)->orderBy('created_at')->get();
         return view('tasks.chat', compact('task', 'messages'));
     }
@@ -22,6 +24,7 @@ class TaskChatController extends Controller
         ]);
 
         $task = Task::where('ulid', $ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('chat', $task);
 
         TaskChatMessage::create([
             'task_ulid' => $task->ulid,
@@ -34,6 +37,9 @@ class TaskChatController extends Controller
 
     public function fetchMessages($ulid)
     {
+        $task = Task::where('ulid', $ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('chat', $task);
+
         $messages = TaskChatMessage::where('task_ulid', $ulid)->orderBy('created_at')->get();
         return response()->json($messages);
     }

@@ -21,8 +21,9 @@ class TaskController extends Controller
     public function index(Request $request)
     {
         $milestone_id = $request->milestone_ulid;
-        $tasks = Task::where('milestone_id', $milestone_id)->paginate();
         $milestone = Milestone::select('id', 'ulid', 'project_ulid', 'name')->where('id', $milestone_id)->with('project')->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('view', $milestone);
+        $tasks = Task::where('milestone_id', $milestone_id)->paginate();
         return view('projects.tasks.index',  compact('tasks', 'milestone'));
     }
 
@@ -73,6 +74,7 @@ class TaskController extends Controller
     public function show($ulid)
     {
         $task = Task::where('ulid', $ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('view', $task);
         $messages = TaskChatMessage::where('task_ulid', $ulid)->orderBy('created_at')->get();
         return view('projects.tasks.show', compact('task', 'messages'));
     }
@@ -129,6 +131,7 @@ class TaskController extends Controller
     public function mark_as_done($ulid)
     {
         $task = Task::where('status', 'pending')->where('ulid', $ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('complete', $task);
         $task->mark_as_done();
         return redirect()->back()->with('success', 'Task has been updated to done successfully');
     }
@@ -137,6 +140,7 @@ class TaskController extends Controller
     public function upload(Request $request, $ulid)
     {
         $task = Task::where('ulid', $ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('upload', $task);
 
         $request->validate([
             'images.*' => 'image|mimes:jpeg,png,jpg|max:3048',

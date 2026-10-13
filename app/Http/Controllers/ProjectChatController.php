@@ -12,6 +12,8 @@ class ProjectChatController extends Controller
 
     public function index($ulid)
     {
+        $project = Project::where('ulid', $ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('chat', $project);
         $messages = ProjectChat::where('project_ulid', $ulid)->orderBy('created_at')->get();
         return view('projects.chat', compact('project', 'messages'));
     }
@@ -23,6 +25,7 @@ class ProjectChatController extends Controller
         ]);
 
         $project = Project::where('ulid', $ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('chat', $project);
 
         ProjectChat::create([
             'project_ulid' => $project->ulid,
@@ -35,8 +38,10 @@ class ProjectChatController extends Controller
 
     public function fetchMessages($ulid)
     {
+        $project = Project::where('ulid', $ulid)->firstOrFail();
+        \Illuminate\Support\Facades\Gate::authorize('chat', $project);
+
         $messages = ProjectChat::where('project_ulid', $ulid)->orderBy('created_at')->get();
         return response()->json($messages);
-
     }
 }

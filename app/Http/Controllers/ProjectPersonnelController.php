@@ -61,8 +61,6 @@ class ProjectPersonnelController extends Controller
 
             $role = Role::where('id', $validated['role_id'])->first();
 
-            $personnel->user?->assignRole($role->name);
-
             DB::commit();
 
             $project = Project::where('ulid', $validated['project_ulid'])->firstOrFail();
@@ -116,14 +114,6 @@ class ProjectPersonnelController extends Controller
 
             $projectPersonnel->update($validated);
 
-            $personnel = Personnel::where('id', $validated['personnel_id'])->with('user')->first();
-
-            $role = Role::find($validated['role_id']);
-
-            if ($personnel->user) {
-                $personnel->user->syncRoles([$role->name]);
-            }
-
             DB::commit();
 
             return redirect()->route('project.personnels', ['project_ulid' => $validated['project_ulid']])
@@ -146,12 +136,6 @@ class ProjectPersonnelController extends Controller
         DB::beginTransaction();
         try {
             $project_ulid = $projectPersonnel->project_ulid;
-            $personnel = Personnel::where('id', $projectPersonnel->personnel_id)->with('user')->first();
-            $role = Role::find($projectPersonnel->role_id);
-
-            if ($personnel && $personnel->user && $role) {
-                $personnel->user->removeRole($role->name);
-            }
 
             $projectPersonnel->delete();
 
