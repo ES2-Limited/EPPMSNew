@@ -17,8 +17,11 @@ fi
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
-# Run migrations and cache config/routes
+# Run migrations and seed default data if database is fresh
 php /var/www/html/artisan migrate --force --isolated || true
+php /var/www/html/artisan db:seed --force || true
+
+# Warm caches
 php /var/www/html/artisan config:cache || true
 php /var/www/html/artisan route:cache || true
 php /var/www/html/artisan view:cache || true

@@ -24,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrap();
 
+        if (app()->isProduction()) {
+            URL::forceScheme('https');
+        }
+
         Model::preventLazyLoading(! app()->isProduction());
     }
 }
