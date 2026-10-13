@@ -17,6 +17,11 @@ fi
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
 
+# Ensure valid APP_KEY exists
+if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
+    export APP_KEY="base64:gMRqqhW02cLJKiLvsHHKc4W+BzXtje3ckmX4yOLo2Hg="
+fi
+
 # Run migrations and seed default data if database is fresh
 php /var/www/html/artisan migrate --force --isolated || true
 php /var/www/html/artisan db:seed --force || true
