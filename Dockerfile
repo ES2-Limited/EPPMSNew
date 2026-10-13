@@ -1,42 +1,35 @@
 # Production Dockerfile for Laravel 11 on Render
 FROM php:8.4-fpm-alpine
 
-# Install system dependencies & libraries
+# Install system dependencies
 RUN apk add --no-cache \
     nginx \
     supervisor \
     curl \
     git \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libzip-dev \
     zip \
     unzip \
-    sqlite \
-    sqlite-dev \
-    sqlite-libs \
-    oniguruma-dev \
-    icu-dev
+    sqlite
 
-# Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-configure pdo_sqlite --with-pdo-sqlite \
-    && docker-php-ext-install -j$(nproc) \
-        pdo \
-        pdo_mysql \
-        pdo_sqlite \
-        sqlite3 \
-        mbstring \
-        exif \
-        pcntl \
-        bcmath \
-        gd \
-        zip \
-        intl \
-        opcache \
-    && docker-php-ext-enable pdo pdo_sqlite sqlite3 pdo_mysql opcache \
+# Install install-php-extensions helper for clean, flawless Alpine builds
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+# Install PHP extensions cleanly
+RUN install-php-extensions \
+    pdo \
+    pdo_mysql \
+    pdo_sqlite \
+    sqlite3 \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+    zip \
+    intl \
+    opcache \
     && cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
+
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
