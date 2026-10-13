@@ -13,7 +13,9 @@ RUN apk add --no-cache \
     libzip-dev \
     zip \
     unzip \
+    sqlite \
     sqlite-dev \
+    sqlite-libs \
     oniguruma-dev \
     icu-dev
 
@@ -30,7 +32,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         gd \
         zip \
         intl \
-        opcache
+        opcache \
+    && docker-php-ext-enable pdo_sqlite pdo_mysql opcache
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
