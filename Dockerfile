@@ -1,5 +1,5 @@
-# Multi-stage Dockerfile for Laravel 11 on Render
-FROM php:8.2-fpm-alpine
+# Production Dockerfile for Laravel 11 on Render
+FROM php:8.4-fpm-alpine
 
 # Install system dependencies & libraries
 RUN apk add --no-cache \
@@ -42,7 +42,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install PHP production dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=php
 
 # Copy configs
 COPY docker/nginx.conf /etc/nginx/nginx.conf
