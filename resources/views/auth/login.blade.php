@@ -8,15 +8,18 @@
                     <div class="col-lg-6 col-xl-5 col-xxl-4">
                         <div class="min-vh-100 bg-body row justify-content-center align-items-center p-5">
                             <div class="col-12 auth-card">
-                                <a href="/" class="text-nowrap logo-img d-block w-100">
-                                    <img src="{{ asset('/assets/images/logos/ncaa-icon.png') }} " class="dark-logo"
-                                        alt="Logo-Dark" />
-                                </a>
-                                <h2 class="mb-2 mt-4 fs-7 fw-bolder">Log In to NCAA’s Management System</h2>
+                                <div class="mb-4">
+                                    <a href="/" class="text-nowrap logo-img d-inline-block">
+                                        <img src="{{ asset('/assets/images/logos/ncaa-icon.png') }}" class="dark-logo"
+                                            alt="Logo-Dark" style="height: 50px; width: auto;" />
+                                    </a>
+                                </div>
+                                <h3 class="mb-2 fs-6 fw-bold text-dark">Sign in to EPPMS</h3>
+                                <p class="text-muted small mb-4">Enterprise Project & Portfolio Management System</p>
 
                                 @if ($errors->any())
-                                    <div class="alert alert-danger">
-                                        <ul>
+                                    <div class="alert alert-danger border-0 rounded-3 shadow-sm py-2">
+                                        <ul class="mb-0 small ps-3">
                                             @foreach ($errors->all() as $error)
                                                 <li>{{ $error }}</li>
                                             @endforeach
@@ -26,42 +29,38 @@
                                 <form method="POST" action="{{ route('login') }}">
                                     @csrf
                                     <div class="mb-3">
-                                        <label for="email" class="form-label">{{ __('E-Mail Address') }}</label>
-                                        <input type="email" class="form-control" id="email"
-                                            aria-describedby="emailHelp" placeholder="Email"
-                                            class="form-control @error('email') is-invalid @enderror" name="email"
+                                        <label for="email" class="form-label fw-semibold text-dark">{{ __('Email Address') }}</label>
+                                        <input type="email" id="email"
+                                            placeholder="name@ncaa.gov.ng"
+                                            class="form-control form-control-lg @error('email') is-invalid @enderror" name="email"
                                             value="{{ old('email') }}" required autocomplete="email" autofocus />
-                                        <div class="col-md-6">
-                                            @error('email')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
+                                        @error('email')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
                                     </div>
-                                    <div class="mb-4">
-                                        <label for="password" class="form-label">Password</label>
-                                        <input type="password" id="password" placeholder="Password"
-                                            class="form-control @error('password') is-invalid @enderror" name="password"
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label for="password" class="form-label fw-semibold text-dark mb-0">Password</label>
+                                            @if (Route::has('password.request'))
+                                                <a class="text-primary small text-decoration-none fw-medium" href="{{ route('password.request') }}">
+                                                    {{ __('Forgot password?') }}
+                                                </a>
+                                            @endif
+                                        </div>
+                                        <input type="password" id="password" placeholder="••••••••"
+                                            class="form-control form-control-lg @error('password') is-invalid @enderror" name="password"
                                             required autocomplete="current-password" />
-                                        <div class="col-md-6">
-                                            @error('password')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                                        @if (Route::has('password.request'))
-                                            <a class="text-primary fw-medium" href="{{ route('password.request') }}">
-                                                {{ __('Forgot Your Password?') }}
-                                            </a>
-                                        @endif
+                                        @error('password')
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
+                                        @enderror
                                     </div>
 
-                                    <button type="submit" class="btn btn-primary w-100 py-8 mb-4 rounded-2">
-                                        {{ __('Sign In') }}
+                                    <button type="submit" class="btn btn-primary w-100 py-2 fs-4 rounded-3 shadow-sm mt-3">
+                                        {{ __('Sign In to Portal') }}
                                     </button>
                                 </form>
                             </div>

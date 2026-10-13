@@ -22,247 +22,223 @@
     <div class="body-wrapper">
         <div class="container-fluid">
             <div class="col-12">
-                <div class="card">
+                <div class="card border-0 shadow-sm" style="border-radius: var(--eppms-radius-lg);">
+                    <div class="card-header border-bottom bg-white py-3 px-4 d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-uppercase fw-bold text-primary" style="font-size: 0.75rem; letter-spacing: 0.05em;">Projects</span>
+                            <h4 class="fw-bold mb-0 text-dark">Register New Project</h4>
+                        </div>
+                        <a href="{{ route('projects.index') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="ti ti-arrow-left me-1"></i> Back to Projects
+                        </a>
+                    </div>
+
                     @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
+                        <div class="alert alert-success m-4 mb-0 d-flex align-items-center">
+                            <i class="ti ti-check fs-5 me-2"></i> {{ session('success') }}
                         </div>
                     @endif
 
                     @if (session('error'))
-                        <div class="alert alert-danger">
-                            {{ session('error') }}
+                        <div class="alert alert-danger m-4 mb-0 d-flex align-items-center">
+                            <i class="ti ti-alert-circle fs-5 me-2"></i> {{ session('error') }}
                         </div>
                     @endif
 
                     @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul>
+                        <div class="alert alert-danger m-4 mb-0">
+                            <ul class="mb-0">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
                             </ul>
                         </div>
                     @endif
-                    <div class="card-body">
-                        <h4 class="card-title mb-0">Project </h4>
-                        <h6 class="card-subtitle mb-3"></h6>
-                        <h3>Project Details</h3>
-                        <section>
-                            <form action="{{ route('projects.store') }}" class="mt-5" method="post"
-                                enctype="multipart/form-data"
-                                onsubmit="this.querySelector('#submit-button').disabled = true; this.querySelector('#submit-button').innerText = 'Saving...';">
-                                @csrf
-                                <div>
-                                    <div class="mb-3">
-                                        <label class="form-label" for="Project">Project Name</label>
-                                        <input id="name" name="name" type="text" placeholder="Project Name"
-                                            class=" form-control mb-3" value="{{ old('name') }}" required />
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label" for="Project">Project Description</label>
-                                        <textarea id="description" name="description" placeholder="Project Description" class="form-control" rows="3"
-                                            placeholder="Message">{{ old('description') }} </textarea>
-                                    </div>
 
-                                    <div class="row pt-3">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Project Directorate</label>
-                                                <select class="form-select" id="directorate" name="directorate_id" required>
-                                                    <option value="" disabled
-                                                        {{ old('directorate_id') ? '' : 'selected' }}>Choose directorate
-                                                    </option>
-                                                    @foreach ($directorates as $directorate)
-                                                        <option value="{{ $directorate->id }}"
-                                                            {{ old('directorate_id') == $directorate->id ? 'selected' : '' }}>
-                                                            {{ $directorate->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('directorate_id')
-                                                    <div class="text-danger">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Project Department</label>
-                                                <select class="form-select" id="department" name="department_id">
-                                                    <option value="" disabled
-                                                        {{ old('department_id') ? '' : 'selected' }}>
-                                                        department</option>
-                                                </select>
-                                                @error('department_id')
-                                                    <div class="text-danger">{{ $message }}</div>
-                                                @enderror
-                                                <span id="department-error"
-                                                    style="color: red; font-size: 12px; display:none;">No departments
-                                                    available
-                                                    for this directorate</span>
-                                            </div>
-                                        </div>
+                    <div class="card-body p-4 p-md-5">
+                        <form action="{{ route('projects.store') }}" method="post"
+                            enctype="multipart/form-data"
+                            onsubmit="this.querySelector('#submit-button').disabled = true; this.querySelector('#submit-button').innerText = 'Saving...';">
+                            @csrf
+
+                            <!-- Section 1: Overview -->
+                            <div class="mb-4 pb-3 border-bottom">
+                                <h5 class="fw-bold text-dark mb-1"><i class="ti ti-file-description me-2 text-primary"></i>General Information</h5>
+                                <p class="text-muted small">Provide the title, summary, and scope of this capital initiative.</p>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold" for="name">Project Name <span class="text-danger">*</span></label>
+                                    <input id="name" name="name" type="text" placeholder="e.g. Modernization of Primary Radar Infrastructure"
+                                        class="form-control" value="{{ old('name') }}" required />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold" for="description">Project Description</label>
+                                    <textarea id="description" name="description" placeholder="Provide background, deliverables, and intended outcomes..." class="form-control" rows="4">{{ old('description') }}</textarea>
+                                </div>
+                            </div>
+
+                            <!-- Section 2: Department & Structure -->
+                            <div class="mb-4 pb-3 border-bottom">
+                                <h5 class="fw-bold text-dark mb-1"><i class="ti ti-building me-2 text-primary"></i>Organizational Allocation</h5>
+                                <p class="text-muted small">Select the governing directorate and department responsible for oversight.</p>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold" for="directorate">Project Directorate <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="directorate" name="directorate_id" required>
+                                            <option value="" disabled {{ old('directorate_id') ? '' : 'selected' }}>Choose directorate</option>
+                                            @foreach ($directorates as $directorate)
+                                                <option value="{{ $directorate->id }}" {{ old('directorate_id') == $directorate->id ? 'selected' : '' }}>
+                                                    {{ $directorate->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('directorate_id')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
                                     </div>
 
-
-                                    <div class="row pt-3">
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label class="form-label">Project Type</label>
-                                                <select class="form-select" id="project_type" name="project_type_id"
-                                                    required>
-                                                    <option value="" disabled
-                                                        {{ old('project_type_id') ? '' : 'selected' }}>Choose Project Type
-                                                    </option>
-                                                    @foreach ($project_types as $project_type)
-                                                        <option value="{{ $project_type->id }}"
-                                                            {{ old('project_type_id') == $project_type->id ? 'selected' : '' }}>
-                                                            {{ $project_type->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('project_type_id')
-                                                    <div class="text-danger">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-
-
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label class="form-label">Project Contractor</label>
-                                                <select class="form-select" id="contractor" name="contractor_id" required>
-                                                    <option value="" disabled
-                                                        {{ old('contractor_id') ? '' : 'selected' }}>Choose Contractor
-                                                    </option>
-                                                    @foreach ($contractors as $contractor)
-                                                        <option value="{{ $contractor->id }}"
-                                                            {{ old('contractor_id') == $contractor->id ? 'selected' : '' }}>
-                                                            {{ $contractor->user?->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('contractor_id')
-                                                    <div class="text-danger">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-4">
-                                            <div class="mb-3">
-                                                <label class="form-label">Project Consultant</label>
-                                                <select class="form-select" id="consultant" name="consultant_id">
-                                                    <option value="" disabled
-                                                        {{ old('consultant_id') ? '' : 'selected' }}>Choose consultant
-                                                    </option>
-                                                    @foreach ($consultants as $consultant)
-                                                        <option value="{{ $consultant->id }}"
-                                                            {{ old('consultant_id') == $consultant->id ? 'selected' : '' }}>
-                                                            {{ $consultant->user?->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('consultant_id')
-                                                    <div class="text-danger">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row pt-3">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="Project">Project Cost</label>
-                                                <input id="Projectcost" name="cost" type="number" placeholder="0.00"
-                                                    class=" form-control mb-3" value="{{ old('cost') }}" />
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="Project">Project Location</label>
-                                                <select class="form-select" id="office" name="office_id" required>
-                                                    <option value="" disabled
-                                                        {{ old('office_id') ? '' : 'selected' }}>--SELECT Office office--
-                                                    </option>
-                                                    @foreach ($offices as $office)
-                                                        <option value="{{ $office->id }}"
-                                                            {{ old('office_id') == $office->id ? 'selected' : '' }}>
-                                                            {{ $office->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @error('office_id')
-                                                    <div class="text-danger">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                    <div class="row pt-3">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label" for="awardDate">Award Date</label>
-                                                <input type="date" class="form-control" id="awardDate"
-                                                    name="award_date" value="{{ old('award_date') }}" required />
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="row pt-3">
-                                                <div class="col-md-4">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Project Duration</label>
-                                                        <input id="count" name="duration" type="number"
-                                                            placeholder="0" class="form-control mb-3" min="0"
-                                                            value="{{ old('duration') }}" required />
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-4">
-                                                    <div class="mb-3">
-                                                        <label class="form-label" for="Duration">Duration By</label>
-                                                        <select class="form-select" id="duration" name="duration_period"
-                                                            required>
-                                                            <option value="days"
-                                                                {{ old('duration_period') == 'days' ? 'selected' : '' }}>
-                                                                Days</option>
-                                                            <option value="weeks"
-                                                                {{ old('duration_period') == 'weeks' ? 'selected' : '' }}>
-                                                                Weeks</option>
-                                                            <option value="months"
-                                                                {{ old('duration_period') == 'months' ? 'selected' : '' }}>
-                                                                Months</option>
-                                                            <option value="years"
-                                                                {{ old('duration_period') == 'years' ? 'selected' : '' }}>
-                                                                Years</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                    <div class="row pt-3">
-                                        <div class="col-md-12">
-                                            <label class="form-label">Upload Award Letter</label>
-                                            <input type="file" class="form-control" name="award_letter"
-                                                accept=".jpeg,.jpg,.png,.gif,.pdf" />
-                                        </div>
-                                    </div>
-                                    <div class="row pt-3">
-                                        <div class="form-actions">
-                                            <button type="submit" id="submit-button" class="btn btn-primary"
-                                                name=""> Create </button>
-                                        </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold" for="department">Project Department</label>
+                                        <select class="form-select" id="department" name="department_id">
+                                            <option value="" disabled {{ old('department_id') ? '' : 'selected' }}>Choose department</option>
+                                        </select>
+                                        @error('department_id')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                        <span id="department-error" class="text-danger small" style="display:none;">
+                                            No departments available for this directorate
+                                        </span>
                                     </div>
                                 </div>
-                            </form>
-                        </section>
+                            </div>
+
+                            <!-- Section 3: Classification & Stakeholders -->
+                            <div class="mb-4 pb-3 border-bottom">
+                                <h5 class="fw-bold text-dark mb-1"><i class="ti ti-users me-2 text-primary"></i>Classification & Partners</h5>
+                                <p class="text-muted small">Specify project typology, primary contractor, and technical consultant.</p>
+
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold" for="project_type">Project Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="project_type" name="project_type_id" required>
+                                            <option value="" disabled {{ old('project_type_id') ? '' : 'selected' }}>Choose Project Type</option>
+                                            @foreach ($project_types as $project_type)
+                                                <option value="{{ $project_type->id }}" {{ old('project_type_id') == $project_type->id ? 'selected' : '' }}>
+                                                    {{ $project_type->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('project_type_id')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold" for="contractor">Project Contractor <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="contractor" name="contractor_id" required>
+                                            <option value="" disabled {{ old('contractor_id') ? '' : 'selected' }}>Choose Contractor</option>
+                                            @foreach ($contractors as $contractor)
+                                                <option value="{{ $contractor->id }}" {{ old('contractor_id') == $contractor->id ? 'selected' : '' }}>
+                                                    {{ $contractor->user?->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('contractor_id')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold" for="consultant">Project Consultant</label>
+                                        <select class="form-select" id="consultant" name="consultant_id">
+                                            <option value="" disabled {{ old('consultant_id') ? '' : 'selected' }}>Choose consultant</option>
+                                            @foreach ($consultants as $consultant)
+                                                <option value="{{ $consultant->id }}" {{ old('consultant_id') == $consultant->id ? 'selected' : '' }}>
+                                                    {{ $consultant->user?->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('consultant_id')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section 4: Financials & Timeline -->
+                            <div class="mb-4 pb-3 border-bottom">
+                                <h5 class="fw-bold text-dark mb-1"><i class="ti ti-coin me-2 text-primary"></i>Financials, Location & Timeline</h5>
+                                <p class="text-muted small">Specify contracted cost, operational office location, award date, and delivery timeframe.</p>
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold" for="Projectcost">Contract Cost (NGN)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light text-muted fw-bold">₦</span>
+                                            <input id="Projectcost" name="cost" type="number" step="0.01" placeholder="0.00"
+                                                class="form-control" value="{{ old('cost') }}" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold" for="office">Project Location / Office <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="office" name="office_id" required>
+                                            <option value="" disabled {{ old('office_id') ? '' : 'selected' }}>-- SELECT Office --</option>
+                                            @foreach ($offices as $office)
+                                                <option value="{{ $office->id }}" {{ old('office_id') == $office->id ? 'selected' : '' }}>
+                                                    {{ $office->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('office_id')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold" for="awardDate">Award Date <span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" id="awardDate" name="award_date" value="{{ old('award_date') }}" required />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Project Duration <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input id="count" name="duration" type="number" placeholder="0" class="form-control" min="0" value="{{ old('duration') }}" required />
+                                            <select class="form-select" id="duration" name="duration_period" style="max-width: 130px;" required>
+                                                <option value="days" {{ old('duration_period') == 'days' ? 'selected' : '' }}>Days</option>
+                                                <option value="weeks" {{ old('duration_period') == 'weeks' ? 'selected' : '' }}>Weeks</option>
+                                                <option value="months" {{ old('duration_period') == 'months' ? 'selected' : '' }}>Months</option>
+                                                <option value="years" {{ old('duration_period') == 'years' ? 'selected' : '' }}>Years</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-3">
+                                        <label class="form-label fw-semibold">Upload Award Letter</label>
+                                        <input type="file" class="form-control" name="award_letter" accept=".jpeg,.jpg,.png,.gif,.pdf" />
+                                        <small class="text-muted">Accepted formats: PDF, JPEG, PNG</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-3 pt-2">
+                                <button type="submit" id="submit-button" class="btn btn-primary px-4 py-2">
+                                    <i class="ti ti-check me-1"></i> Create Project
+                                </button>
+                                <a href="{{ route('projects.index') }}" class="btn btn-light px-4 py-2 text-muted">
+                                    Cancel
+                                </a>
+                            </div>
+                        </form>
                     </div>
                     <div id="loading" style="display:none;">Loading...</div>
                 </div>
             </div>
         </div>
     </div>
+
     </div>
 
     @include('custom.customizer')

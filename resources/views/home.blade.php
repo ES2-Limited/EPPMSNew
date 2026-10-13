@@ -16,40 +16,57 @@
                 @endif
             </div>
 
-            <div class="row">
+            <div class="row g-4 mb-5">
                 @forelse ($ongoingProjects as $project)
-                    <div class="col-lg-4">
-                        <div class="row">
-                            <div class="col-md-6 col-lg-12">
-                                <div class="card">
-                                    <div class="card-body p-4">
-                                        <div class="d-flex align-items-center gap-6 mb-6 pb-3  justify-content-between">
-                                            <h6 class="mb-0 fs-4">Creator: {{ $project->creator?->name }}</h6>
-                                            <p class="mb-0 fw-medium">{{ $project->created_at->diffForHumans() }}</p>
-                                        </div>
-                                        <div class="d-flex align-items-center justify-content-between mb-6">
-                                            <h6 class="mb-0 fw-medium">Project: {{ $project->name }}</h6>
-                                            <h6 class="mb-0 fw-medium">{{ $project->get_progress() }}%</h6>
-                                        </div>
-                                        <div class="progress" role="progressbar" aria-label="Basic example"
-                                            aria-valuenow="{{ $project->get_progress() }}" aria-valuemin="0"
-                                            aria-valuemax="100">
-                                            <div class="progress-bar bg-alert"
-                                                style="width: {{ $project->get_progress() }}%"></div>
-                                        </div>
-
-                                        <span class="badge text-bg-primary rounded-4 px-3 py-1 lh-sm mt-4">
-                                            <a href="{{ route('projects.show', ['ulid' => $project->ulid]) }}"
-                                                style="color:white;"> View</a>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card project-card h-100 shadow-sm border-0">
+                            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <span class="badge text-bg-primary rounded-pill px-3 py-1">
+                                            {{ Str::ucfirst($project->status?->value ?? 'Active') }}
                                         </span>
+                                        <small class="text-muted d-flex align-items-center gap-1">
+                                            <i class="far fa-clock"></i> {{ $project->created_at->diffForHumans() }}
+                                        </small>
+                                    </div>
+                                    <h5 class="fw-bold mb-2 text-dark">{{ $project->name }}</h5>
+                                    <p class="text-muted small mb-3">
+                                        <i class="far fa-user me-1"></i> Creator: <span class="fw-semibold text-dark">{{ $project->creator?->name ?? 'System' }}</span>
+                                    </p>
+                                </div>
+
+                                <div class="mt-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="small fw-semibold text-muted">Completion Rate</span>
+                                        <span class="small fw-bold text-dark">{{ $project->get_progress() }}%</span>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 8px;">
+                                        <div class="progress-bar bg-primary" role="progressbar"
+                                            style="width: {{ $project->get_progress() }}%"
+                                            aria-valuenow="{{ $project->get_progress() }}" aria-valuemin="0"
+                                            aria-valuemax="100"></div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                        <span class="small text-muted">
+                                            <i class="fas fa-layer-group me-1"></i> {{ $project->milestones?->count() ?? 0 }} Milestones
+                                        </span>
+                                        <a href="{{ route('projects.show', ['ulid' => $project->ulid]) }}"
+                                            class="btn btn-sm btn-outline-primary px-3 rounded-pill">
+                                            View Project <i class="fas fa-arrow-right ms-1"></i>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 @empty
-                    <div class="alert alert-info" role="alert">
-                        No ongoing projects found.
+                    <div class="col-12">
+                        <div class="alert alert-info border-0 rounded-3 shadow-sm d-flex align-items-center gap-2" role="alert">
+                            <i class="fas fa-info-circle fs-5"></i>
+                            <span>No ongoing projects found at this time.</span>
+                        </div>
                     </div>
                 @endforelse
             </div>

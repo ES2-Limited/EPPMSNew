@@ -51,97 +51,132 @@
                         {{ session('error') }}
                     </div>
                 @endif
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Amount</th>
-                            <th>Progress</th>
-                            <th>Status</th>
-                            <th>Tasks</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="itemTable">
-                        @forelse ($milestones as $milestone)
-                            <tr>
-                                <td>{{ $milestone->name }}</td>
-                                <td>{{ $milestone->amount }}</td>
-                                <td>{{ $milestone->get_progress() }}%</td>
-                                @php
-                                    $value = Str::ucfirst($milestone->status?->value);
-                                @endphp
-                                <td>
-                                    <span
-                                        class="badge
-                                        @if ($value === 'done') bg-primary
-                                        @elseif($value === 'pending') bg-warning
-                                        @else bg-secondary @endif ">
-                                        {{ ucfirst($value) }}
-                                    </span>
-                                    <span class="badge">
-                                        @if ($value === 'Done')
-                                            <a href="{{ url('admin/report/milestone/' . $milestone->ulid) }}"
-                                                class="btn btn-info btn-sm">Print</a>
-                                        @endif
-                                    </span>
-
-
-                                </td>
-                                <td>
-                                    {{ $milestone->tasks?->count() }} &nbsp; &nbsp; &nbsp;
-                                    @if ($milestone->tasks?->count() > 0)
-                                        <a href="{{ route('milestone.tasks', ['milestone_ulid' => $milestone->id]) }}"
-                                            class="btn btn-success btn-sm">View Task</a>
-                                    @endif
-                                    @hasanyrole('admin|personnel')
-                                        <a href="{{ route('milestone.tasks.create', ['milestone_ulid' => $milestone->id]) }}"
-                                            class="btn btn-warning btn-sm">Add Task</a>
-                                    @endrole
-
-                                </td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="three-dots btn" type="button" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                            &#8942;
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item btn btn-info btn-sm"
-                                                    href="{{ route('project.milestones.show', ['milestone_ulid' => $milestone->ulid]) }}">View</a>
-                                            </li>
-                                            @hasanyrole('admin|personnel')
-                                                <li><a class="dropdown-item btn btn-info btn-sm"
-                                                        href="{{ route('project.milestones.edit', ['milestone_ulid' => $milestone->ulid]) }}">Edit</a>
-                                                </li>
-                                                <li>
-                                                    <form
-                                                        action="{{ route('project.milestones.delete', ['milestone_ulid' => $milestone->ulid]) }}"
-                                                        method="POST" style="display:inline;"
-                                                        onsubmit="return deleteConfirmation()">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                            class="dropdown-item text-danger btn btn-danger btn-sm">Delete</button>
-                                                    </form>
-                                                </li>
-                                            @endrole
-                                        </ul>
-                                    </div>
-
-                                </td>
-                            </tr>
-                        @empty
-                            <tr colspan="3">
-                                No project milestones registered!!!
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-
-                <div class="mt-4">
-                    {{ $milestones->links() }}
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Milestone</th>
+                                    <th>Budget / Amount</th>
+                                    <th style="min-width: 160px;">Progress</th>
+                                    <th>Status</th>
+                                    <th>Tasks Count</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemTable">
+                                @forelse ($milestones as $milestone)
+                                    @php
+                                        $progress = $milestone->get_progress();
+                                        $value = Str::ucfirst($milestone->status?->value ?? 'Pending');
+                                        if ($progress < 30) {
+                                            $progColor = 'bg-danger';
+                                        } elseif ($progress < 70) {
+                                            $progColor = 'bg-warning';
+                                        } else {
+                                            $progColor = 'bg-success';
+                                        }
+                                    @endphp
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="fw-bold text-dark">{{ $milestone->name }}</div>
+                                            @if($milestone->deadline)
+                                                <small class="text-muted"><i class="far fa-calendar-alt me-1"></i> Due {{ \Carbon\Carbon::parse($milestone->deadline)->format('M d, Y') }}</small>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="fw-semibold text-dark">₦{{ number_format($milestone->amount, 2) }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="progress flex-grow-1" style="height: 6px;">
+                                                    <div class="progress-bar {{ $progColor }}" role="progressbar"
+                                                        style="width: {{ $progress }}%"
+                                                        aria-valuenow="{{ $progress }}" aria-valuemin="0"
+                                                        aria-valuemax="100"></div>
+                                                </div>
+                                                <span class="small fw-semibold text-muted">{{ $progress }}%</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge {{ $value === 'Done' ? 'text-bg-success' : ($value === 'Pending' ? 'text-bg-warning' : 'text-bg-primary') }} rounded-pill">
+                                                {{ $value }}
+                                            </span>
+                                            @if ($value === 'Done')
+                                                <a href="{{ url('admin/report/milestone/' . $milestone->ulid) }}"
+                                                    class="btn btn-sm btn-outline-info rounded-pill py-0 px-2 ms-1" title="Print Report">
+                                                    <i class="fas fa-print"></i>
+                                                </a>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge text-bg-secondary rounded-pill">{{ $milestone->tasks?->count() ?? 0 }} Tasks</span>
+                                                @if ($milestone->tasks?->count() > 0)
+                                                    <a href="{{ route('milestone.tasks', ['milestone_ulid' => $milestone->id]) }}"
+                                                        class="btn btn-sm btn-outline-primary rounded-pill py-1 px-2">
+                                                        View Tasks
+                                                    </a>
+                                                @endif
+                                                @hasanyrole('admin|personnel')
+                                                    <a href="{{ route('milestone.tasks.create', ['milestone_ulid' => $milestone->id]) }}"
+                                                        class="btn btn-sm btn-outline-secondary rounded-pill py-1 px-2">
+                                                        + Task
+                                                    </a>
+                                                @endrole
+                                            </div>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-light rounded-circle shadow-none p-2" type="button" data-bs-toggle="dropdown"
+                                                    aria-expanded="false" style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-ellipsis-v text-muted"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ route('project.milestones.show', ['milestone_ulid' => $milestone->ulid]) }}">
+                                                            <i class="far fa-eye me-2 text-primary"></i> View Details
+                                                        </a>
+                                                    </li>
+                                                    @hasanyrole('admin|personnel')
+                                                        <li>
+                                                            <a class="dropdown-item" href="{{ route('project.milestones.edit', ['milestone_ulid' => $milestone->ulid]) }}">
+                                                                <i class="far fa-edit me-2 text-warning"></i> Edit
+                                                            </a>
+                                                        </li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li>
+                                                            <form action="{{ route('project.milestones.delete', ['milestone_ulid' => $milestone->ulid]) }}"
+                                                                method="POST" onsubmit="return deleteConfirmation()">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item text-danger">
+                                                                    <i class="far fa-trash-alt me-2"></i> Delete
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endrole
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted">
+                                            <i class="fas fa-info-circle me-1"></i> No project milestones registered yet.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-end">
+                {{ $milestones->links() }}
+            </div>
             </div>
         </div>
     </div>

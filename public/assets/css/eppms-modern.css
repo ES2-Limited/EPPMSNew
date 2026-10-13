@@ -1,0 +1,397 @@
+/**
+ * EPPMS Modern UI Design System
+ * Enhances Bootstrap & theme components with refined typography, elevations, micro-interactions, and contrast.
+ */
+
+:root {
+    --eppms-primary: #0b1f66;
+    --eppms-primary-light: #1e3a8a;
+    --eppms-primary-soft: #eef2ff;
+    --eppms-primary-gradient: linear-gradient(135deg, #0b1f66 0%, #1e40af 100%);
+    --eppms-success: #059669;
+    --eppms-success-soft: #ecfdf5;
+    --eppms-warning: #d97706;
+    --eppms-warning-soft: #fffbeb;
+    --eppms-danger: #dc2626;
+    --eppms-danger-soft: #fef2f2;
+    --eppms-info: #0284c7;
+    --eppms-info-soft: #f0f9ff;
+    --eppms-surface: #ffffff;
+    --eppms-bg-subtle: #f8fafc;
+    --eppms-border: #e2e8f0;
+    --eppms-border-focus: #3b82f6;
+    --eppms-text-main: #0f172a;
+    --eppms-text-muted: #64748b;
+    --eppms-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+    --eppms-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+    --eppms-shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+    --eppms-radius: 12px;
+    --eppms-radius-sm: 8px;
+    --eppms-radius-lg: 16px;
+}
+
+/* Global Typography & Smoothing */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    background-color: #f8fafc !important;
+    color: var(--eppms-text-main) !important;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.011em;
+}
+
+h1, h2, h3, h4, h5, h6, .fs-4, .fs-5 {
+    font-weight: 600 !important;
+    color: var(--eppms-text-main);
+    letter-spacing: -0.02em;
+}
+
+/* Sidebar Custom Styling */
+.left-sidebar {
+    background-color: #ffffff !important;
+    border-right: 1px solid var(--eppms-border) !important;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.02) !important;
+}
+
+.brand-logo {
+    background: var(--eppms-primary-gradient) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    height: 70px;
+}
+
+.sidebar-nav {
+    background-color: #ffffff !important;
+}
+
+.sidebar-nav .sidebar-item .sidebar-link {
+    border-radius: var(--eppms-radius-sm) !important;
+    margin: 3px 12px !important;
+    padding: 10px 16px !important;
+    font-weight: 500 !important;
+    color: #475569 !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+.sidebar-nav .sidebar-item .sidebar-link:hover {
+    background-color: var(--eppms-primary-soft) !important;
+    color: var(--eppms-primary-light) !important;
+    transform: translateX(3px);
+}
+
+.sidebar-nav .sidebar-item.selected > .sidebar-link,
+.sidebar-nav .sidebar-item > .sidebar-link.active {
+    background: var(--eppms-primary-gradient) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(14, 31, 102, 0.25) !important;
+}
+
+.sidebar-divider {
+    border-color: var(--eppms-border) !important;
+    margin: 12px 18px !important;
+}
+
+/* Header Topbar Enhancement */
+.topbar {
+    background: var(--eppms-primary-gradient) !important;
+    box-shadow: 0 4px 20px rgba(11, 31, 102, 0.15) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.topbar .nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+    transition: color 0.15s ease;
+}
+
+.topbar .nav-link:hover {
+    color: #ffffff !important;
+}
+
+/* Modern Card Layouts */
+.card {
+    background: var(--eppms-surface) !important;
+    border: 1px solid var(--eppms-border) !important;
+    border-radius: var(--eppms-radius) !important;
+    box-shadow: var(--eppms-shadow-sm) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: var(--eppms-shadow-md) !important;
+}
+
+.card .card-body {
+    padding: 1.5rem !important;
+}
+
+/* Polished Project Summary Cards */
+.project-card {
+    border-radius: var(--eppms-radius-lg) !important;
+    border: 1px solid var(--eppms-border) !important;
+    background: #ffffff;
+    box-shadow: var(--eppms-shadow-sm);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.project-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--eppms-shadow-lg) !important;
+    border-color: #cbd5e1 !important;
+}
+
+.project-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--eppms-primary-gradient);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.project-card:hover::before {
+    opacity: 1;
+}
+
+/* Clean Progress Bars */
+.progress {
+    background-color: #e2e8f0 !important;
+    border-radius: 9999px !important;
+    height: 8px !important;
+    box-shadow: none !important;
+    overflow: hidden;
+}
+
+.progress-bar {
+    border-radius: 9999px !important;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-bar.bg-alert,
+.progress-bar.bg-primary {
+    background: var(--eppms-primary-gradient) !important;
+}
+
+.progress-bar.bg-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+}
+
+.progress-bar.bg-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+}
+
+.progress-bar.bg-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+}
+
+/* Badges */
+.badge {
+    font-weight: 500 !important;
+    padding: 0.4rem 0.8rem !important;
+    border-radius: 9999px !important;
+    letter-spacing: 0.02em;
+    font-size: 0.775rem !important;
+}
+
+.badge.text-bg-primary,
+.badge.bg-primary {
+    background-color: var(--eppms-primary-soft) !important;
+    color: var(--eppms-primary-light) !important;
+    border: 1px solid #c7d2fe;
+}
+
+.badge.text-bg-success,
+.badge.bg-success {
+    background-color: var(--eppms-success-soft) !important;
+    color: var(--eppms-success) !important;
+    border: 1px solid #a7f3d0;
+}
+
+.badge.text-bg-warning,
+.badge.bg-warning {
+    background-color: var(--eppms-warning-soft) !important;
+    color: var(--eppms-warning) !important;
+    border: 1px solid #fde68a;
+}
+
+.badge.text-bg-secondary,
+.badge.bg-secondary {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border: 1px solid #e2e8f0;
+}
+
+/* Modern Form Controls */
+.form-control,
+.form-select {
+    border-radius: var(--eppms-radius-sm) !important;
+    border: 1.5px solid var(--eppms-border) !important;
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.925rem !important;
+    color: var(--eppms-text-main) !important;
+    background-color: #ffffff !important;
+    transition: all 0.15s ease-in-out !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--eppms-border-focus) !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+    outline: none !important;
+}
+
+.form-label {
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    color: #334155 !important;
+    margin-bottom: 0.35rem !important;
+}
+
+/* Elevated Buttons */
+.btn {
+    border-radius: var(--eppms-radius-sm) !important;
+    font-weight: 500 !important;
+    padding: 0.55rem 1.15rem !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: var(--eppms-primary-gradient) !important;
+    border: none !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(11, 31, 102, 0.2) !important;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 4px 12px rgba(11, 31, 102, 0.35) !important;
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+    border-color: var(--eppms-primary) !important;
+    color: var(--eppms-primary) !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--eppms-primary) !important;
+    color: #ffffff !important;
+}
+
+/* Tables Redesign */
+.table {
+    --bs-table-bg: transparent;
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+.table thead th {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+    font-size: 0.775rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    font-weight: 700 !important;
+    padding: 0.875rem 1.25rem !important;
+    border-bottom: 1.5px solid var(--eppms-border) !important;
+    border-top: none !important;
+}
+
+.table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+
+.table tbody td {
+    padding: 1rem 1.25rem !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid var(--eppms-border) !important;
+    color: #1e293b !important;
+    font-size: 0.9rem !important;
+}
+
+.table-responsive {
+    border: 1px solid var(--eppms-border);
+    border-radius: var(--eppms-radius);
+    background: #ffffff;
+    box-shadow: var(--eppms-shadow-sm);
+    overflow: hidden;
+}
+
+/* Modern Project Show Specifics */
+.project-details-hero {
+    background: linear-gradient(135deg, #0b1f66 0%, #172554 100%);
+    border-radius: var(--eppms-radius-lg);
+    color: #ffffff;
+    padding: 2.25rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--eppms-shadow-md);
+    position: relative;
+    overflow: hidden;
+}
+
+.project-details-hero h2,
+.project-details-hero h4,
+.project-details-hero p,
+.project-details-hero span {
+    color: #ffffff !important;
+}
+
+.project-details-hero .badge {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.stat-metric-card {
+    background: #ffffff;
+    border-radius: var(--eppms-radius);
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--eppms-border);
+    box-shadow: var(--eppms-shadow-sm);
+}
+
+.stat-metric-card .stat-label {
+    font-size: 0.775rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--eppms-text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.stat-metric-card .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--eppms-text-main);
+}
+
+/* Chat Bubbles Enhancement */
+.comment-section {
+    background: #f8fafc;
+    border: 1px solid var(--eppms-border);
+    border-radius: var(--eppms-radius-sm);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.85rem;
+}
+
+.comment-box textarea {
+    background: #ffffff !important;
+    border: 1.5px solid var(--eppms-border) !important;
+    border-radius: var(--eppms-radius-sm) !important;
+    padding: 0.875rem !important;
+}
+
+.comment-box textarea:focus {
+    border-color: var(--eppms-border-focus) !important;
+}
+

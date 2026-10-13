@@ -29,79 +29,78 @@
                             </ul>
                         </div>
                     @endif
-                    <form method="POST"
-                        action="{{ $isEdit ? route('milestone.tasks.update', [$task->ulid]) : route('milestone.tasks.store') }}"
-                        onsubmit="this.querySelector('#submit-button').disabled = true; this.querySelector('#submit-button').innerText = 'Saving...';">
-                        @csrf
-                        @if ($isEdit)
-                            @method('PUT')
-                        @endif
-
-                        <div class="alert alert-primary">
-                            <h5>The max amount for task that can be added is:
-                                {{ number_format($milestone->cost_left(), 2) }}</h5>
+                    <div class="card border-0 shadow-sm rounded-3">
+                        <div class="card-header bg-transparent border-bottom py-3">
+                            <h5 class="mb-0 fw-bold text-dark">{{ $isEdit ? 'Edit Milestone Task' : 'Add Milestone Task' }}</h5>
+                            <small class="text-muted">Fill in the task details, budget limits, and schedule below.</small>
                         </div>
-                        <input id="milestone_id" name="milestone_id" type="hidden" value="{{ $milestone->id ?? '' }}" />
-                        <div>
-                            <div class="card-body">
-                                <h4 class="mb-3 fs-4">Add Milestone Task</h4>
+                        <div class="card-body p-4">
+                            <div class="alert alert-primary d-flex align-items-center gap-2 border-0 rounded-3 mb-4" role="alert">
+                                <i class="fas fa-coins fs-4 text-primary"></i>
+                                <div>
+                                    <span class="fw-semibold">Budget Allowance:</span> Maximum amount that can be added for this task is
+                                    <strong class="text-primary">₦{{ number_format($milestone->cost_left() + ($isEdit ? $task->cost : 0), 2) }}</strong>
+                                </div>
+                            </div>
 
-                                <div class="row pt-3">
-                                    <div class="mb-3 col-md-6">
+                            <form method="POST"
+                                action="{{ $isEdit ? route('milestone.tasks.update', [$task->ulid]) : route('milestone.tasks.store') }}"
+                                onsubmit="this.querySelector('#submit-button').disabled = true; this.querySelector('#submit-button').innerText = 'Saving...';">
+                                @csrf
+                                @if ($isEdit)
+                                    @method('PUT')
+                                @endif
+
+                                <input id="milestone_id" name="milestone_id" type="hidden" value="{{ $milestone->id ?? '' }}" />
+
+                                <div class="row g-4">
+                                    <div class="col-md-6">
                                         <label class="form-label">Milestone Name</label>
-                                        <input type="text" class="form-control" value="{{ $milestone->name }}" readonly
-                                            disabled />
+                                        <input type="text" class="form-control bg-light" value="{{ $milestone->name }}" readonly disabled />
                                     </div>
 
-                                    <div class="mb-3 col-md-6">
-                                        <label class="form-label" for="taskname">Task Name</label>
-                                        <input type="text" class="form-control" placeholder="Task Name"
-                                            value="{{ old('name', $task->name) }}" name="name" />
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="taskname">Task Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="taskname" placeholder="e.g. Foundation Excavation"
+                                            value="{{ old('name', $task->name) }}" name="name" required />
                                     </div>
-                                </div>
 
-                                <div class="row pt-3">
-                                    <div class="mb-3 col-md-4">
-                                        <label class="form-label" for="taskstart">Task Start Date</label>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="taskstart">Start Date <span class="text-danger">*</span></label>
                                         <input type="date" class="form-control" id="taskstart" name="start_date"
-                                            value="{{ old('start_date', $task->start_date) }}" />
+                                            value="{{ old('start_date', $task->start_date) }}" required />
                                     </div>
 
-                                    <div class="mb-3 col-md-4">
-                                        <label class="form-label" for="taskdue">Task Due Date</label>
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="taskdue">Due Date <span class="text-danger">*</span></label>
                                         <input type="date" class="form-control" id="taskdue" name="due_date"
-                                            value="{{ old('due_date', $task->due_date) }}" />
+                                            value="{{ old('due_date', $task->due_date) }}" required />
                                     </div>
 
-                                    <div class="mb-3 col-md-4">
-                                        <label class="form-label"> Task Cost</label>
-                                        <input type="number" class="form-control" placeholder="0.00" min="0"
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="taskcost">Task Cost (₦) <span class="text-danger">*</span></label>
+                                        <input type="number" step="0.01" class="form-control" id="taskcost" placeholder="0.00" min="0"
                                             name="cost" value="{{ old('cost', $task->cost) }}"
-                                            max="{{ $milestone->cost_left() + ($isEdit ? $task->cost : 0) }}" />
+                                            max="{{ $milestone->cost_left() + ($isEdit ? $task->cost : 0) }}" required />
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label" for="taskDescription">Task Description <span class="text-danger">*</span></label>
+                                        <textarea class="form-control" id="taskDescription" rows="3" placeholder="Provide detailed operational requirements..." name="description" required>{{ old('description', $task->description) }}</textarea>
                                     </div>
                                 </div>
 
-                                <div class="row pt-3">
-                                    <div class="mb-3 col-md-6">
-                                        <label class="form-label" for="taskDescription">Task Description</label>
-                                        <textarea class="form-control" rows="2" placeholder="Task Description" name="description" required>{{ old('description', $task->description) }}</textarea>
-                                    </div>
+                                <div class="d-flex align-items-center justify-content-end gap-2 pt-4 mt-4 border-top">
+                                    <a href="{{ route('milestone.tasks', $milestone->id) }}" class="btn btn-outline-secondary px-4">
+                                        Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-primary px-4" id="submit-button">
+                                        <i class="fas fa-check me-1"></i> {{ $isEdit ? 'Update Task' : 'Create Task' }}
+                                    </button>
                                 </div>
-                                <div class="form-actions">
-                                    <div class="card-body border-top">
-                                        <button type="submit" class="btn btn-primary" id="submit-button">
-                                            Save
-                                        </button>
-                                        <button type="reset" class="btn bg-danger-subtle text-danger ms-6">
-                                            Cancel
-                                        </button>
-                                    </div>
-                                </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+                            </form>
+                        </div>
+                    </div>
     @include('custom.customizer')
     </div>
     </div>

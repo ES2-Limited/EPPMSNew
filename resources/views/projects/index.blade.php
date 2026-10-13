@@ -46,90 +46,86 @@
 
 
 
-            <div class="row">
+            <div class="row g-4 mb-5">
                 @forelse ($projects as $project)
-                    <div class="col-lg-4">
-                        <div class="row">
-                            <div class="col-md-6 col-lg-12">
-                                <div class="card">
-                                    <div class="card-body p-3">
-                                        <div class="d-flex align-items-center gap-6 mb-6 pb-3  justify-content-between">
-                                            <p class="mb-0 fw-medium">Created {{ $project->created_at->diffForHumans() }}
-                                            </p>
+                    @php
+                        $progress = $project->get_progress();
+                        if ($progress < 30) {
+                            $progressClass = 'bg-danger';
+                            $statusBadgeClass = 'text-bg-danger';
+                        } elseif ($progress < 70) {
+                            $progressClass = 'bg-warning';
+                            $statusBadgeClass = 'text-bg-warning';
+                        } else {
+                            $progressClass = 'bg-success';
+                            $statusBadgeClass = 'text-bg-success';
+                        }
+                    @endphp
+                    <div class="col-lg-4 col-md-6">
+                        <div class="card project-card h-100 shadow-sm border-0">
+                            <div class="card-body p-4 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <span class="badge {{ $statusBadgeClass }} rounded-pill px-3 py-1">
+                                            {{ Str::ucfirst($project->status?->value ?? 'Pending') }}
+                                        </span>
+                                        <small class="text-muted d-flex align-items-center gap-1">
+                                            <i class="far fa-clock"></i> {{ $project->created_at->diffForHumans() }}
+                                        </small>
+                                    </div>
 
-                                            <span class="badge text-bg-primary rounded-4 px-3 py-1 lh-sm">
-                                                <a href="{{ route('projects.show', ['ulid' => $project->ulid]) }}"
-                                                    style="color:white;"> View</a>
+                                    <h5 class="fw-bold mb-2 text-dark">{{ $project->name }}</h5>
+                                    
+                                    <div class="d-flex align-items-center gap-3 mb-3 text-muted small">
+                                        @if($project->office)
+                                            <span><i class="fas fa-map-marker-alt me-1 text-primary"></i> {{ $project->office->name }}</span>
+                                        @endif
+                                        @if($project->cost)
+                                            <span><i class="fas fa-coins me-1 text-success"></i> ₦{{ number_format($project->cost, 2) }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="mt-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="small fw-semibold text-muted">Progress</span>
+                                        <span class="small fw-bold text-dark">{{ $progress }}%</span>
+                                    </div>
+                                    <div class="progress mb-3" style="height: 8px;">
+                                        <div class="progress-bar {{ $progressClass }}" role="progressbar"
+                                            style="width: {{ $progress }}%;"
+                                            aria-valuenow="{{ $progress }}" aria-valuemin="0"
+                                            aria-valuemax="100"></div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                                        <div class="d-flex gap-2">
+                                            <span class="badge {{ $project->milestones?->count() > 0 ? 'text-bg-success' : 'text-bg-secondary' }} rounded-pill">
+                                                <i class="fas fa-flag me-1"></i> {{ $project->milestones?->count() ?? 0 }} Milestones
                                             </span>
                                         </div>
-
-                                        <div class="d-flex align-items-center justify-content-between mb-6">
-                                            <h6 class="mb-0 fw-medium">{{ $project->name }}</h6>
-                                            <h6 class="mb-0 fw-medium">{{ $project->get_progress() }}%</h6>
-                                        </div>
-
-                                        <div class="d-flex align-items-center justify-content-between mb-6">
-                                            <h6 class="mb-0 fw-medium">Status</h6>
-                                            <h6 class="mb-0 fw-medium">{{ Str::ucfirst($project->status?->value) }} </h6>
-                                        </div>
-
-                                        @php
-                                            $progress = $project->get_progress();
-                                            if ($progress < 30) {
-                                                $progressClass = 'bg-danger';
-                                            } elseif ($progress < 60) {
-                                                $progressClass = 'bg-warning';
-                                            } else {
-                                                $progressClass = 'bg-success';
-                                            }
-                                        @endphp
-
-                                        <div class="progress mb-2" style="height: 20px; max-width: 600px; margin: 0 auto;">
-                                            <div class="progress-bar {{ $progressClass }}" role="progressbar"
-                                                style="width: {{ $project->get_progress() }}%;"
-                                                aria-valuenow="{{ $project->get_progress() }}" aria-valuemin="0"
-                                                aria-valuemax="100">
-                                                {{ $project->get_progress() }}%
-                                            </div>
-                                        </div>
-
-
-                                        <div class="d-flex align-items-center gap-6 mb-6 pb-3  justify-content-between">
-                                            <h6 class="mb-0 fs-4"> Milestone </h6>
-                                            <p class="mb-0 fw-medium"> <a href="#" style="color:green;">
-                                                    {{ $project->milestones?->count() > 0 ? 'Added' : 'Not Added' }}</a>
-                                            </p>
-                                        </div>
-
-                                        <div class="d-flex align-items-center gap-6 mb-6 pb-3  justify-content-between">
-                                            <h6 class="mb-0 fs-4"> Task </h6>
-                                            <p class="mb-0 fw-medium"> <a href="#" style="color:red;">
-                                                    {{ $project->milestones->contains(function ($milestone) {return !empty($milestone['tasks']);})? 'Added': 'Not Added' }}</a>
-                                            </p>
-                                        </div>
-
-                                        @hasanyrole('admin|personnel')
-                                            <span class="badge text-bg-primary rounded-4 px-3 py-1 lh-sm">
+                                        <div class="d-flex gap-1">
+                                            <a href="{{ route('projects.show', ['ulid' => $project->ulid]) }}"
+                                                class="btn btn-sm btn-primary rounded-pill px-3">
+                                                View
+                                            </a>
+                                            @hasanyrole('admin|personnel')
                                                 <a href="{{ route('projects.edit', ['ulid' => $project->ulid]) }}"
-                                                    style="color:white;"> Edit</a>
-                                            </span>
-                                        @endrole
-
+                                                    class="btn btn-sm btn-outline-secondary rounded-pill px-2" title="Edit Project">
+                                                    <i class="fas fa-pencil-alt"></i>
+                                                </a>
+                                            @endrole
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 @empty
-                    <div class="col-lg-3">
-                        <div class="row">
-                            <div class="col-md-6 col-lg-12">
-                                <div class="card  overflow-hidden shadow-none">
-                                    <div class="card-body p-3">
-                                        No projects created!
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="col-12">
+                        <div class="alert alert-info border-0 rounded-3 shadow-sm d-flex align-items-center gap-2" role="alert">
+                            <i class="fas fa-info-circle fs-5"></i>
+                            <span>No projects found matching the criteria.</span>
                         </div>
                     </div>
                 @endforelse

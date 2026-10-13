@@ -229,116 +229,79 @@
 
                     </div>
 
-                    <div class="project-details mb-4">
-                        <div class="project-details-header">
-                            <h4 class="flex-grow-1">
-                                {{ $project->name }}
-                            </h4>
-                        </div>
-
-
-                        <div class="d-flex align-items-center gap-6 mb-2 pb-3 justify-content-between">
-                            <h6 class="mb-0 fs-4 ">Project details</h6>
-
+                    <div class="project-details-hero rounded-3 mb-4 p-4 text-white" style="background: linear-gradient(135deg, #0b1f66 0%, #1e40af 100%);">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
                             <div>
+                                <span class="badge bg-white text-primary rounded-pill px-3 py-1 fw-bold text-uppercase" style="font-size: 0.75rem;">
+                                    {{ Str::ucfirst($project->status?->value ?? 'Pending') }}
+                                </span>
+                                @if($project->priority)
+                                    <span class="badge bg-white bg-opacity-25 text-white rounded-pill px-3 py-1 ms-1">
+                                        {{ $project->priority }} Priority
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="d-flex gap-2">
                                 @hasanyrole('admin|personnel')
                                     @if ($project->get_progress() == 100)
-                                        <span class="badge text-bg-primary rounded-4 px-3 py-1 lh-sm">
-                                            <a href="{{ url('admin/report/project/' . $project->ulid) }}"
-                                                style="color:white;">Project
-                                                Report</a>
-                                        </span>
+                                        <a href="{{ url('admin/report/project/' . $project->ulid) }}"
+                                            class="btn btn-sm btn-light text-primary rounded-pill px-3 fw-semibold">
+                                            <i class="fas fa-file-pdf me-1"></i> Report
+                                        </a>
                                     @endif
-
-                                    <span class="badge text-bg-success rounded-4 px-3 py-1 lh-sm">
-                                        <a href="{{ route('projects.index') }}" style="color:white;">All Projects</a>
-                                    </span>
+                                    <a href="{{ route('projects.index') }}" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                                        All Projects
+                                    </a>
                                 @endrole
                             </div>
                         </div>
-                        <div class="project-detail-item text-dark-custom">
-                            <div class="project-detail-item-title">
-                                <i class="fas fa-sync-alt"></i> <span>Status:</span>
+
+                        <h3 class="fw-bold mb-2 text-white">{{ $project->name }}</h3>
+                        <p class="text-white-50 small mb-3">
+                            <i class="fas fa-map-marker-alt me-1"></i> {{ $project->office?->name ?? 'No location set' }} &bull;
+                            <i class="fas fa-calendar-alt ms-2 me-1"></i> Awarded {{ $project->award_date ?? 'N/A' }}
+                        </p>
+
+                        <div class="row g-2 mt-2">
+                            <div class="col-4">
+                                <div class="bg-white bg-opacity-10 rounded-2 p-2 text-center">
+                                    <small class="text-white-50 d-block" style="font-size: 0.75rem;">Total Budget</small>
+                                    <span class="fw-bold fs-6 text-white">₦{{ number_format($project->cost, 2) }}</span>
+                                </div>
                             </div>
-                            <span class="status-badge"
-                                style="background-color: #fcffb8">{{ Str::ucfirst($project->status?->value) }}</span>
+                            <div class="col-4">
+                                <div class="bg-white bg-opacity-10 rounded-2 p-2 text-center">
+                                    <small class="text-white-50 d-block" style="font-size: 0.75rem;">Total Paid</small>
+                                    <span class="fw-bold fs-6 text-success text-white">₦{{ number_format($project->total_paid, 2) }}</span>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="bg-white bg-opacity-10 rounded-2 p-2 text-center">
+                                    <small class="text-white-50 d-block" style="font-size: 0.75rem;">Remaining</small>
+                                    <span class="fw-bold fs-6 text-warning text-white">₦{{ number_format($project->total_left, 2) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="project-details mb-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h6 class="mb-0 fw-bold fs-5 text-dark">Project Information</h6>
                         </div>
 
-                        <div class="project-detail-item">
-                            <div class="project-detail-item-title">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>Priority</span>
+                        <div class="list-group list-group-flush border rounded-3 mb-4 shadow-sm">
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <span class="text-muted"><i class="fas fa-building me-2 text-primary"></i> Directorate</span>
+                                <span class="fw-semibold text-dark">{{ $project->directorate?->name ?? $project->department?->directorate?->name ?? 'None' }}</span>
                             </div>
-                            <span class="ms-2">{{ $project->priority ?? 'None' }}</span>
-                        </div>
-
-
-                        <div class="project-detail-item">
-                            <div class="project-detail-item-title">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>Total Paid</span>
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <span class="text-muted"><i class="fas fa-user-check me-2 text-success"></i> Contractor Firm</span>
+                                <span class="fw-semibold text-dark">{{ $project->contractor?->user?->name ?? 'Unassigned' }}</span>
                             </div>
-                            <span class="ms-2">{{ number_format($project->total_paid, 2) }}</span>
-                        </div>
-
-
-                        <div class="project-detail-item">
-                            <div class="project-detail-item-title">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>Total Left</span>
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <span class="text-muted"><i class="fas fa-hourglass-half me-2 text-warning"></i> Duration</span>
+                                <span class="fw-semibold text-dark">{{ $project->duration }} {{ $project->duration_period }}</span>
                             </div>
-                            <span class="ms-2">{{ number_format($project->total_left, 2) }}</span>
-                        </div>
-
-
-
-                        <div class="project-detail-item">
-                            <div class="project-detail-item-title">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>Location</span>
-                            </div>
-                            <span class="ms-2">{{ $project->office?->name }}</span>
-                        </div>
-
-                        <div class="project-detail-item">
-                            <div class="project-detail-item-title">
-                                <i class="fas fa-briefcase"></i>
-                                <span>Directorate</span>
-                            </div>
-                            <span class="ms-2">{{ $project->directorate?->name ??  $project->department?->directorate?->name }}</span>
-                        </div>
-
-                        <div class="project-detail-item">
-                            <div class="project-detail-item-title">
-                                <i class="fas fa-user-check"></i>
-                                <span>Contractor</span>
-                            </div>
-                            <span class="ms-2">{{ $project->contractor?->user?->name }}</span>
-                        </div>
-
-                        <div class="project-detail-item">
-                            <div class="project-detail-item-title">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>Award date</span>
-                            </div>
-                            <span class="ms-2">{{ $project->award_date }}</span>
-                        </div>
-
-                        <div class="project-detail-item">
-                            <div class="project-detail-item-title">
-                                <i class="fas fa-clock"></i>
-                                <span>Duration</span>
-                            </div>
-                            <span class="ms-2">{{ $project->duration }} -
-                                {{ $project->duration_period }}</span>
-                        </div>
-
-                        <div class="project-detail-item">
-                            <div class="project-detail-item-title">
-                                <i class="fas fa-credit-card"></i>
-                                <span>Cost</span>
-                            </div>
-                            <span class="ms-2">{{ number_format($project->cost, 2) }}</span>
                         </div>
                         <div
                             style="

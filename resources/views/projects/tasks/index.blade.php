@@ -56,64 +56,92 @@
                         {{ session('error') }}
                     </div>
                 @endif
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Cost</th>
-                            <th>Start Date</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody id="itemTable">
-                        @forelse ($tasks as $task)
-                            <tr>
-                                <td>{{ $task->name }}</td>
-                                <td>{{ $task->cost }}</td>
-                                <td>{{ $task->start_date }}</td>
-                                <td>{{ Str::ucfirst($task->status?->value) }}</td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="three-dots btn" type="button" data-bs-toggle="dropdown"
-                                            aria-expanded="false">
-                                            &#8942;
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a href="{{ route('milestone.tasks.show', ['task_ulid' => $task->ulid]) }}"
-                                                    class="dropdown-item btn btn-info btn-sm">View</a>
-                                            </li>
-                                            @hasanyrole('admin')
-                                                <li> <a href="{{ route('milestone.tasks.edit', ['task_ulid' => $task->ulid]) }}"
-                                                        class="dropdown-item btn btn-info btn-sm">Edit</a>
-                                                </li>
-                                                <li>
-                                                    <form
-                                                        action="{{ route('milestone.tasks.delete', ['task_ulid' => $task->ulid]) }}"
-                                                        method="POST" style="display:inline;"
-                                                        onsubmit="return deleteConfirmation()">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                            class="dropdown-item text-danger btn btn-danger btn-sm">Delete</button>
-                                                    </form>
-                                                </li>
-                                            @endrole
-                                        </ul>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr colspan="4">
-                                No milestone tasks added!!!
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-
-                <div class="mt-4">
-                    {{ $tasks->links() }}
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Task Name</th>
+                                    <th>Cost / Budget</th>
+                                    <th>Start Date</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemTable">
+                                @forelse ($tasks as $task)
+                                    @php
+                                        $taskStatus = Str::ucfirst($task->status?->value ?? 'Pending');
+                                    @endphp
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="fw-bold text-dark">{{ $task->name }}</div>
+                                            @if($task->due_date)
+                                                <small class="text-muted"><i class="far fa-calendar-check me-1"></i> Due {{ \Carbon\Carbon::parse($task->due_date)->format('M d, Y') }}</small>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="fw-semibold text-dark">₦{{ number_format($task->cost, 2) }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">{{ $task->start_date ? \Carbon\Carbon::parse($task->start_date)->format('M d, Y') : '-' }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge {{ $taskStatus === 'Done' ? 'text-bg-success' : ($taskStatus === 'Pending' ? 'text-bg-warning' : 'text-bg-primary') }} rounded-pill">
+                                                {{ $taskStatus }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-light rounded-circle shadow-none p-2" type="button" data-bs-toggle="dropdown"
+                                                    aria-expanded="false" style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-ellipsis-v text-muted"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                                                    <li>
+                                                        <a class="dropdown-item" href="{{ route('milestone.tasks.show', ['task_ulid' => $task->ulid]) }}">
+                                                            <i class="far fa-eye me-2 text-primary"></i> View
+                                                        </a>
+                                                    </li>
+                                                    @hasanyrole('admin')
+                                                        <li>
+                                                            <a class="dropdown-item" href="{{ route('milestone.tasks.edit', ['task_ulid' => $task->ulid]) }}">
+                                                                <i class="far fa-edit me-2 text-warning"></i> Edit
+                                                            </a>
+                                                        </li>
+                                                        <li><hr class="dropdown-divider"></li>
+                                                        <li>
+                                                            <form action="{{ route('milestone.tasks.delete', ['task_ulid' => $task->ulid]) }}"
+                                                                method="POST" onsubmit="return deleteConfirmation()">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="dropdown-item text-danger">
+                                                                    <i class="far fa-trash-alt me-2"></i> Delete
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endrole
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">
+                                            <i class="fas fa-info-circle me-1"></i> No milestone tasks added yet.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-end">
+                {{ $tasks->links() }}
+            </div>
             </div>
         </div>
     </div>
