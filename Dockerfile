@@ -22,6 +22,8 @@ RUN install-php-extensions \
     pdo_mysql \
     pdo_sqlite \
     sqlite3 \
+    pdo_pgsql \
+    pgsql \
     mbstring \
     exif \
     pcntl \
