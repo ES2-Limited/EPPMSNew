@@ -1,8 +1,8 @@
 #!/bin/sh
 set -e
 
-# Ensure storage directories exist
-mkdir -p /var/www/html/storage/framework/cache
+# Ensure all storage subdirectories exist
+mkdir -p /var/www/html/storage/framework/cache/data
 mkdir -p /var/www/html/storage/framework/sessions
 mkdir -p /var/www/html/storage/framework/views
 mkdir -p /var/www/html/storage/logs
@@ -13,9 +13,10 @@ if [ ! -f /var/www/html/database/database.sqlite ]; then
     touch /var/www/html/database/database.sqlite
 fi
 
-# Ensure correct permissions
+# Ensure full read/write permissions for web server
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
+chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
+umask 0000
 
 # Ensure valid APP_KEY exists
 if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
