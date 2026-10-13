@@ -34,6 +34,20 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/ping', function () {
+    return response()->json([
+        'status' => 'ok',
+        'php' => PHP_VERSION,
+        'pdo_drivers' => \PDO::getAvailableDrivers(),
+        'db_connection' => config('database.default'),
+        'extensions' => [
+            'pdo_sqlite' => extension_loaded('pdo_sqlite'),
+            'sqlite3' => extension_loaded('sqlite3'),
+            'pdo_mysql' => extension_loaded('pdo_mysql'),
+        ],
+    ]);
+});
+
 Route::get('/verify/email/{ulid}/{token}', [EmailVerificationController::class, 'verify'])->name('email.verify');
 Route::get('/email/verify/error', [EmailVerificationController::class, 'resend_email'])->name('email.verify.error');
 
