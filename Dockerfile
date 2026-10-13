@@ -21,10 +21,12 @@ RUN apk add --no-cache \
 
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure pdo_sqlite --with-pdo-sqlite=DIR \
     && docker-php-ext-install -j$(nproc) \
         pdo \
         pdo_mysql \
         pdo_sqlite \
+        sqlite3 \
         mbstring \
         exif \
         pcntl \
@@ -33,7 +35,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         zip \
         intl \
         opcache \
-    && docker-php-ext-enable pdo_sqlite pdo_mysql opcache
+    && docker-php-ext-enable pdo pdo_sqlite sqlite3 pdo_mysql opcache
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

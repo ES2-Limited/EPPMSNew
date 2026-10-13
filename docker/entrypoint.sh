@@ -23,6 +23,10 @@ if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
     export APP_KEY="base64:gMRqqhW02cLJKiLvsHHKc4W+BzXtje3ckmX4yOLo2Hg="
 fi
 
+echo "Loaded PDO drivers:"
+php -r 'echo implode(", ", PDO::getAvailableDrivers()) . PHP_EOL;'
+
+
 # Run migrations and seed default data if database is fresh
 php /var/www/html/artisan migrate --force --isolated || true
 php /var/www/html/artisan db:seed --force || true
