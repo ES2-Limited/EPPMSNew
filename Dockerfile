@@ -1,17 +1,19 @@
-# Production Dockerfile for Laravel 11 on Render
-FROM php:8.4-fpm-alpine
+# Production Dockerfile for Laravel 11 on Render (Debian based for complete binary stability)
+FROM php:8.4-fpm-bookworm
 
 # Install system dependencies
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     supervisor \
     curl \
     git \
     zip \
     unzip \
-    sqlite
+    sqlite3 \
+    libsqlite3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install install-php-extensions helper for clean, flawless Alpine builds
+# Install install-php-extensions helper
 ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 # Install PHP extensions cleanly
@@ -29,6 +31,7 @@ RUN install-php-extensions \
     intl \
     opcache \
     && cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
+
 
 
 # Get latest Composer
