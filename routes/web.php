@@ -40,6 +40,7 @@ Route::get('/ping', function () {
     $dbTest = false;
     $userCount = 0;
     $dbError = null;
+    $seeded = false;
 
     try {
         $pdo = new \PDO('sqlite:' . database_path('database.sqlite'));
@@ -51,9 +52,17 @@ Route::get('/ping', function () {
     try {
         $dbTest = \Illuminate\Support\Facades\DB::connection()->getPdo() ? true : false;
         $userCount = \App\Models\User::count();
+
+        if ($userCount === 0) {
+            \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+            $seeded = true;
+            $userCount = \App\Models\User::count();
+        }
     } catch (\Throwable $e) {
         $dbError = $e->getMessage();
     }
+
+    $adminUser = \App\Models\User::where('email', 'dsd@eppms.com')->first();
 
     return response()->json([
         'status' => 'ok',
@@ -64,11 +73,13 @@ Route::get('/ping', function () {
         'raw_pdo_error' => $rawPdoError,
         'db_connected' => $dbTest,
         'user_count' => $userCount,
+        'seeded_on_call' => $seeded,
+        'admin_exists' => (bool)$adminUser,
+        'admin_roles' => $adminUser ? $adminUser->roles->pluck('name') : [],
         'db_error' => $dbError,
         'database_file_exists' => file_exists(database_path('database.sqlite')),
         'database_file_size' => file_exists(database_path('database.sqlite')) ? filesize(database_path('database.sqlite')) : 0,
         'database_path' => database_path('database.sqlite'),
-        'db_config' => config('database.connections.sqlite'),
     ]);
 });
 
