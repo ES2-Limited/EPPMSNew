@@ -13,6 +13,8 @@ use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\OfficeTypeController;
+use App\Http\Controllers\ProjectTypeController;
+use App\Http\Controllers\FirmTypeController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\ProjectChatController;
@@ -183,6 +185,14 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/office-types', [OfficeTypeController::class, 'store'])->name('office-types.store');
             Route::put('/office-types/{id}', [OfficeTypeController::class, 'update'])->name('office-types.update');
             Route::delete('/office-types/{id}', [OfficeTypeController::class, 'destroy'])->name('office-types.destroy');
+
+            Route::post('/project-types', [ProjectTypeController::class, 'store'])->name('project-types.store');
+            Route::put('/project-types/{id}', [ProjectTypeController::class, 'update'])->name('project-types.update');
+            Route::delete('/project-types/{id}', [ProjectTypeController::class, 'destroy'])->name('project-types.destroy');
+
+            Route::post('/firm-types', [FirmTypeController::class, 'store'])->name('firm-types.store');
+            Route::put('/firm-types/{id}', [FirmTypeController::class, 'update'])->name('firm-types.update');
+            Route::delete('/firm-types/{id}', [FirmTypeController::class, 'destroy'])->name('firm-types.destroy');
         });
     });
 

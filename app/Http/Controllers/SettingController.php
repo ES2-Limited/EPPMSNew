@@ -28,6 +28,9 @@ class SettingController extends Controller
         $officeTypes = \App\Models\OfficeType::withCount('offices')->get();
         $officesCount = \App\Models\Office::count();
 
+        $projectTypes = \App\Models\ProjectType::withCount('projects')->get();
+        $firmTypes = \App\Models\FirmType::withCount('contractors')->get();
+
         return view('settings.index', compact(
             'generalSettings',
             'brandingSettings',
@@ -35,7 +38,9 @@ class SettingController extends Controller
             'hierarchySettings',
             'signatures',
             'officeTypes',
-            'officesCount'
+            'officesCount',
+            'projectTypes',
+            'firmTypes'
         ));
     }
 

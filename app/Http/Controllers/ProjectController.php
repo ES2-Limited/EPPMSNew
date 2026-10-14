@@ -177,7 +177,8 @@ class ProjectController extends Controller
         $offices = Office::select('id', 'ulid', 'name')->orderBy('created_at', 'desc')->get();
         $states = State::select('id', 'name')->get();
         $roles = Role::select('id', 'name')->get();
-        return view('projects.edit', compact('project', 'directorates', 'contractors', 'offices', 'departments', 'units', 'consultants'));
+        $project_types = ProjectType::select('id', 'name')->orderBy('name')->get();
+        return view('projects.edit', compact('project', 'directorates', 'contractors', 'offices', 'departments', 'units', 'consultants', 'project_types'));
     }
 
     /**

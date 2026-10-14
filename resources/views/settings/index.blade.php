@@ -82,6 +82,18 @@
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link py-3 px-4 fw-semibold {{ $activeTab === 'project_types' ? 'active' : '' }}" 
+                                id="project_types-tab" data-bs-toggle="tab" data-bs-target="#project_types-pane" type="button" role="tab">
+                            <i class="fas fa-cubes me-2 text-primary"></i> Project Types
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-3 px-4 fw-semibold {{ $activeTab === 'firm_types' ? 'active' : '' }}" 
+                                id="firm_types-tab" data-bs-toggle="tab" data-bs-target="#firm_types-pane" type="button" role="tab">
+                            <i class="fas fa-handshake me-2 text-primary"></i> Firm Classifications
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link py-3 px-4 fw-semibold {{ $activeTab === 'signatures' ? 'active' : '' }}" 
                                 id="signatures-tab" data-bs-toggle="tab" data-bs-target="#signatures-pane" type="button" role="tab">
                             <i class="fas fa-file-signature me-2 text-primary"></i> Management Signatures
@@ -455,7 +467,235 @@
                         </div>
                     </div>
 
-                    <!-- TAB 6: MANAGEMENT SIGNATURES -->
+                    <!-- TAB: PROJECT TYPES -->
+                    <div class="tab-pane fade {{ $activeTab === 'project_types' ? 'show active' : '' }}" id="project_types-pane" role="tabpanel">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                            <div>
+                                <h5 class="fw-bold mb-1">Project Typologies & Categories</h5>
+                                <p class="text-muted small mb-0">Classify capital and operational projects into manageable categories (e.g. Navigational Aids, Runway Civil Works, ICT Systems).</p>
+                            </div>
+                            <div class="mt-3 mt-md-0">
+                                <button type="button" class="btn btn-sm text-white" style="background-color: #01054C;" 
+                                        data-bs-toggle="modal" data-bs-target="#createProjectTypeModal">
+                                    <i class="fas fa-plus me-1"></i> Add Project Type
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive border rounded-3">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3 py-3">Project Type</th>
+                                        <th class="py-3">Associated Projects</th>
+                                        <th class="py-3">Created</th>
+                                        <th class="text-end pe-3 py-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($projectTypes as $type)
+                                        <tr>
+                                            <td class="ps-3 py-3 fw-semibold text-dark">
+                                                <i class="fas fa-cube text-primary me-2"></i> {{ $type->name }}
+                                            </td>
+                                            <td class="py-3">
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                                    {{ $type->projects_count }} project(s)
+                                                </span>
+                                            </td>
+                                            <td class="py-3 text-muted small">
+                                                {{ $type->created_at ? $type->created_at->diffForHumans() : 'System Default' }}
+                                            </td>
+                                            <td class="text-end pe-3 py-3">
+                                                <div class="d-inline-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                            data-bs-toggle="modal" data-bs-target="#editProjectTypeModal-{{ $type->id }}">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </button>
+                                                    <form action="{{ route('project-types.destroy', $type->id) }}" method="POST" 
+                                                          onsubmit="return confirm('Delete project type {{ $type->name }}?');" class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                                {{ $type->projects_count > 0 ? 'disabled title="Projects linked to this type"' : '' }}>
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Edit Modal -->
+                                        <div class="modal fade" id="editProjectTypeModal-{{ $type->id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <form action="{{ route('project-types.update', $type->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Project Type</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <label class="form-label fw-bold">Type Name <span class="text-danger">*</span></label>
+                                                            <input type="text" name="name" class="form-control" value="{{ $type->name }}" required>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn text-white" style="background-color: #01054C;">Save Changes</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center py-4 text-muted">No project types configured yet.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Create Modal -->
+                        <div class="modal fade" id="createProjectTypeModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form action="{{ route('project-types.store') }}" method="POST">
+                                        @csrf
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Create Project Type</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <label class="form-label fw-bold">Project Type Name <span class="text-danger">*</span></label>
+                                            <input type="text" name="name" class="form-control" placeholder="e.g. Navigational Aids, Runway Civil Works" required>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn text-white" style="background-color: #01054C;">Add Project Type</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: FIRM CLASSIFICATIONS -->
+                    <div class="tab-pane fade {{ $activeTab === 'firm_types' ? 'show active' : '' }}" id="firm_types-pane" role="tabpanel">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                            <div>
+                                <h5 class="fw-bold mb-1">External Firm & Partner Classifications</h5>
+                                <p class="text-muted small mb-0">Manage classifications for contracting firms, engineering consultants, suppliers, and external partners.</p>
+                            </div>
+                            <div class="mt-3 mt-md-0">
+                                <button type="button" class="btn btn-sm text-white" style="background-color: #01054C;" 
+                                        data-bs-toggle="modal" data-bs-target="#createFirmTypeModal">
+                                    <i class="fas fa-plus me-1"></i> Add Firm Classification
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive border rounded-3">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3 py-3">Classification Name</th>
+                                        <th class="py-3">Registered Firms</th>
+                                        <th class="py-3">Created</th>
+                                        <th class="text-end pe-3 py-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($firmTypes as $ftype)
+                                        <tr>
+                                            <td class="ps-3 py-3 fw-semibold text-dark">
+                                                <i class="fas fa-handshake text-primary me-2"></i> {{ $ftype->name }}
+                                            </td>
+                                            <td class="py-3">
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                                    {{ $ftype->contractors_count }} registered firm(s)
+                                                </span>
+                                            </td>
+                                            <td class="py-3 text-muted small">
+                                                {{ $ftype->created_at ? $ftype->created_at->diffForHumans() : 'System Default' }}
+                                            </td>
+                                            <td class="text-end pe-3 py-3">
+                                                <div class="d-inline-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                            data-bs-toggle="modal" data-bs-target="#editFirmTypeModal-{{ $ftype->id }}">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </button>
+                                                    <form action="{{ route('firm-types.destroy', $ftype->id) }}" method="POST" 
+                                                          onsubmit="return confirm('Delete firm classification {{ $ftype->name }}?');" class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                                {{ $ftype->contractors_count > 0 ? 'disabled title="Firms linked to this classification"' : '' }}>
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Edit Modal -->
+                                        <div class="modal fade" id="editFirmTypeModal-{{ $ftype->id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <form action="{{ route('firm-types.update', $ftype->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Firm Classification</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <label class="form-label fw-bold">Classification Name <span class="text-danger">*</span></label>
+                                                            <input type="text" name="name" class="form-control" value="{{ $ftype->name }}" required>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn text-white" style="background-color: #01054C;">Save Changes</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center py-4 text-muted">No firm classifications configured yet.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Create Modal -->
+                        <div class="modal fade" id="createFirmTypeModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form action="{{ route('firm-types.store') }}" method="POST">
+                                        @csrf
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Create Firm Classification</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <label class="form-label fw-bold">Classification Name <span class="text-danger">*</span></label>
+                                            <input type="text" name="name" class="form-control" placeholder="e.g. EPC Contractor, Quality Consultant, Supplier" required>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn text-white" style="background-color: #01054C;">Add Classification</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: MANAGEMENT SIGNATURES -->
                     <div class="tab-pane fade {{ $activeTab === 'signatures' ? 'show active' : '' }}" id="signatures-pane" role="tabpanel">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>

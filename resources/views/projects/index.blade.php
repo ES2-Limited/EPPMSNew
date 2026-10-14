@@ -66,9 +66,10 @@
                             <div class="card-body p-4 d-flex flex-column justify-content-between">
                                 <div>
                                     <div class="d-flex align-items-center justify-content-between mb-3">
-                                        <span class="badge {{ $statusBadgeClass }} rounded-pill px-3 py-1">
-                                            {{ Str::ucfirst($project->status?->value ?? 'Pending') }}
-                                        </span>
+                                        <div class="d-flex align-items-center gap-1 flex-wrap">
+                                            {!! status_badge($project->status) !!}
+                                            {!! priority_badge($project->priority) !!}
+                                        </div>
                                         <small class="text-muted d-flex align-items-center gap-1">
                                             <i class="far fa-clock"></i> {{ $project->created_at->diffForHumans() }}
                                         </small>
@@ -76,12 +77,15 @@
 
                                     <h5 class="fw-bold mb-2 text-dark">{{ $project->name }}</h5>
                                     
-                                    <div class="d-flex align-items-center gap-3 mb-3 text-muted small">
+                                    <div class="d-flex align-items-center gap-3 mb-3 text-muted small flex-wrap">
+                                        @if($project->project_type)
+                                            <span><i class="fas fa-folder me-1 text-info"></i> {{ $project->project_type->name }}</span>
+                                        @endif
                                         @if($project->office)
                                             <span><i class="fas fa-map-marker-alt me-1 text-primary"></i> {{ $project->office->name }}</span>
                                         @endif
                                         @if($project->cost)
-                                            <span><i class="fas fa-coins me-1 text-success"></i> ₦{{ number_format($project->cost, 2) }}</span>
+                                            <span><i class="fas fa-coins me-1 text-success"></i> {{ format_currency($project->cost) }}</span>
                                         @endif
                                     </div>
                                 </div>

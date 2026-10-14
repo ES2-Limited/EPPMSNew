@@ -12,4 +12,9 @@ class FirmType extends Model
     protected $fillable = [
         'name',
     ];
+
+    public function contractors()
+    {
+        return $this->hasMany(Contractor::class);
+    }
 }

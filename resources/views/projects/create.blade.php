@@ -162,7 +162,7 @@
                                 <p class="text-muted small">Specify project typology, primary contractor, and technical consultant.</p>
 
                                 <div class="row g-3">
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold" for="project_type">Project Type <span class="text-danger">*</span></label>
                                         <select class="form-select" id="project_type" name="project_type_id" required>
                                             <option value="" disabled {{ old('project_type_id') ? '' : 'selected' }}>Choose Project Type</option>
@@ -177,7 +177,21 @@
                                         @enderror
                                     </div>
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-semibold" for="priority">Priority Level <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="priority" name="priority" required>
+                                            <option value="Normal" {{ old('priority', 'Medium') == 'Normal' ? 'selected' : '' }}>Normal / Standard</option>
+                                            <option value="Low" {{ old('priority') == 'Low' ? 'selected' : '' }}>Low Priority</option>
+                                            <option value="Medium" {{ old('priority', 'Medium') == 'Medium' ? 'selected' : '' }}>Medium Priority</option>
+                                            <option value="High" {{ old('priority') == 'High' ? 'selected' : '' }}>High Priority</option>
+                                            <option value="Critical" {{ old('priority') == 'Critical' ? 'selected' : '' }}>Critical / Urgent</option>
+                                        </select>
+                                        @error('priority')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold" for="contractor">Project Contractor <span class="text-danger">*</span></label>
                                         <select class="form-select" id="contractor" name="contractor_id" required>
                                             <option value="" disabled {{ old('contractor_id') ? '' : 'selected' }}>Choose Contractor</option>
@@ -192,10 +206,10 @@
                                         @enderror
                                     </div>
 
-                                    <div class="col-md-4">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold" for="consultant">Project Consultant</label>
                                         <select class="form-select" id="consultant" name="consultant_id">
-                                            <option value="" disabled {{ old('consultant_id') ? '' : 'selected' }}>Choose consultant</option>
+                                            <option value="" {{ old('consultant_id') ? '' : 'selected' }}>Choose consultant</option>
                                             @foreach ($consultants as $consultant)
                                                 <option value="{{ $consultant->id }}" {{ old('consultant_id') == $consultant->id ? 'selected' : '' }}>
                                                     {{ $consultant->user?->name }}

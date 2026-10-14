@@ -36,6 +36,8 @@ class UpdateProjectRequest extends FormRequest
             'directorate_id' => $directorateRule,
             'department_id' => $departmentRule,
             'unit_id' => $unitRule,
+            'project_type_id' => 'sometimes|exists:project_types,id',
+            'priority' => 'nullable|string|max:50',
             'contractor_id' => 'required|exists:contractors,id',
             'consultant_id' => 'nullable|exists:contractors,id',
             'cost' => 'required|numeric|min:0',

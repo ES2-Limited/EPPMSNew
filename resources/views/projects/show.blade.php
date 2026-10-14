@@ -231,13 +231,12 @@
 
                     <div class="project-details-hero rounded-3 mb-4 p-4 text-white" style="background: linear-gradient(135deg, #0b1f66 0%, #1e40af 100%);">
                         <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-                            <div>
-                                <span class="badge bg-white text-primary rounded-pill px-3 py-1 fw-bold text-uppercase" style="font-size: 0.75rem;">
-                                    {{ Str::ucfirst($project->status?->value ?? 'Pending') }}
-                                </span>
-                                @if($project->priority)
-                                    <span class="badge bg-white bg-opacity-25 text-white rounded-pill px-3 py-1 ms-1">
-                                        {{ $project->priority }} Priority
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                {!! status_badge($project->status) !!}
+                                {!! priority_badge($project->priority) !!}
+                                @if($project->project_type)
+                                    <span class="badge bg-white bg-opacity-25 text-white border border-light border-opacity-25 px-2 py-1">
+                                        <i class="fas fa-folder me-1"></i> {{ $project->project_type->name }}
                                     </span>
                                 @endif
                             </div>
@@ -266,19 +265,19 @@
                             <div class="col-4">
                                 <div class="bg-white bg-opacity-10 rounded-2 p-2 text-center">
                                     <small class="text-white-50 d-block" style="font-size: 0.75rem;">Total Budget</small>
-                                    <span class="fw-bold fs-6 text-white">₦{{ number_format($project->cost, 2) }}</span>
+                                    <span class="fw-bold fs-6 text-white">{{ format_currency($project->cost) }}</span>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="bg-white bg-opacity-10 rounded-2 p-2 text-center">
                                     <small class="text-white-50 d-block" style="font-size: 0.75rem;">Total Paid</small>
-                                    <span class="fw-bold fs-6 text-success text-white">₦{{ number_format($project->total_paid, 2) }}</span>
+                                    <span class="fw-bold fs-6 text-white">{{ format_currency($project->total_paid) }}</span>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="bg-white bg-opacity-10 rounded-2 p-2 text-center">
                                     <small class="text-white-50 d-block" style="font-size: 0.75rem;">Remaining</small>
-                                    <span class="fw-bold fs-6 text-warning text-white">₦{{ number_format($project->total_left, 2) }}</span>
+                                    <span class="fw-bold fs-6 text-white">{{ format_currency($project->total_left) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -290,10 +289,28 @@
                         </div>
 
                         <div class="list-group list-group-flush border rounded-3 mb-4 shadow-sm">
+                            @if($project->project_type)
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <span class="text-muted"><i class="fas fa-folder me-2 text-info"></i> Project Type</span>
+                                <span class="fw-semibold text-dark">{{ $project->project_type->name }}</span>
+                            </div>
+                            @endif
                             <div class="list-group-item d-flex justify-content-between align-items-center py-3">
                                 <span class="text-muted"><i class="fas fa-building me-2 text-primary"></i> Directorate</span>
                                 <span class="fw-semibold text-dark">{{ $project->directorate?->name ?? $project->department?->directorate?->name ?? 'None' }}</span>
                             </div>
+                            @if($project->department)
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <span class="text-muted"><i class="fas fa-sitemap me-2 text-secondary"></i> Department</span>
+                                <span class="fw-semibold text-dark">{{ $project->department->name }}</span>
+                            </div>
+                            @endif
+                            @if($project->unit)
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <span class="text-muted"><i class="fas fa-puzzle-piece me-2 text-info"></i> Unit</span>
+                                <span class="fw-semibold text-dark">{{ $project->unit->name }}</span>
+                            </div>
+                            @endif
                             <div class="list-group-item d-flex justify-content-between align-items-center py-3">
                                 <span class="text-muted"><i class="fas fa-user-check me-2 text-success"></i> Contractor Firm</span>
                                 <span class="fw-semibold text-dark">{{ $project->contractor?->user?->name ?? 'Unassigned' }}</span>

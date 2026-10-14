@@ -172,13 +172,46 @@
                             </div>
                             @endif
 
-                            <!-- Section 3: Partners -->
+                            <!-- Section 3: Classification & Stakeholders -->
                             <div class="mb-4 pb-3 border-bottom">
-                                <h5 class="fw-bold text-dark mb-1"><i class="ti ti-users me-2 text-primary"></i>Contractor & Consultant</h5>
-                                <p class="text-muted small">Update assigned project executors and oversight partners.</p>
+                                <h5 class="fw-bold text-dark mb-1"><i class="ti ti-users me-2 text-primary"></i>Classification & Partners</h5>
+                                <p class="text-muted small">Update project typology, priority level, primary contractor, and technical consultant.</p>
 
                                 <div class="row g-3">
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-semibold" for="project_type">Project Type <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="project_type" name="project_type_id" required>
+                                            <option value="" disabled>Choose Project Type</option>
+                                            @if(isset($project_types))
+                                                @foreach ($project_types as $project_type)
+                                                    <option value="{{ $project_type->id }}"
+                                                        {{ (old('project_type_id', $project->project_type_id) == $project_type->id) ? 'selected' : '' }}>
+                                                        {{ $project_type->name }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        @error('project_type_id')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label fw-semibold" for="priority">Priority Level <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="priority" name="priority" required>
+                                            @php $currentPriority = old('priority', $project->priority ?? 'Medium'); @endphp
+                                            <option value="Normal" {{ $currentPriority == 'Normal' ? 'selected' : '' }}>Normal / Standard</option>
+                                            <option value="Low" {{ $currentPriority == 'Low' ? 'selected' : '' }}>Low Priority</option>
+                                            <option value="Medium" {{ $currentPriority == 'Medium' ? 'selected' : '' }}>Medium Priority</option>
+                                            <option value="High" {{ $currentPriority == 'High' ? 'selected' : '' }}>High Priority</option>
+                                            <option value="Critical" {{ $currentPriority == 'Critical' ? 'selected' : '' }}>Critical / Urgent</option>
+                                        </select>
+                                        @error('priority')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold" for="contractor">Project Contractor <span class="text-danger">*</span></label>
                                         <select class="form-select" id="contractor" name="contractor_id" required>
                                             <option value="" disabled>Choose Contractor</option>
@@ -194,10 +227,10 @@
                                         @enderror
                                     </div>
 
-                                    <div class="col-md-6">
+                                    <div class="col-md-3">
                                         <label class="form-label fw-semibold" for="consultant">Project Consultant</label>
                                         <select class="form-select" id="consultant" name="consultant_id">
-                                            <option value="" disabled {{ old('consultant_id', $project->consultant_id) ? '' : 'selected' }}>Choose consultant</option>
+                                            <option value="" {{ old('consultant_id', $project->consultant_id) ? '' : 'selected' }}>Choose consultant</option>
                                             @foreach ($consultants as $consultant)
                                                 <option value="{{ $consultant->id }}"
                                                     {{ (old('consultant_id', $project->consultant_id) == $consultant->id) ? 'selected' : '' }}>

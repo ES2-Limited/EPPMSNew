@@ -61,3 +61,4 @@ class OfficeTypeController extends Controller
             ->with('success', 'Office type deleted successfully!');
     }
 }
+

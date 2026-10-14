@@ -35,7 +35,8 @@ class Project extends Model
         'deadline',
         'award_letter',
         'created_by_id',
-        'project_type_id'
+        'project_type_id',
+        'priority'
     ];
 
     public function directorate()
