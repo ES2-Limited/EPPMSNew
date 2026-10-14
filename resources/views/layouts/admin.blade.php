@@ -99,32 +99,38 @@
                                         </li>
                                     @endcan
 
-                                    @can('view-directorates')
-                                        <li class="sidebar-item">
-                                            <a class="sidebar-link" href="{{ route('directorates.index') }}">
-                                                <span class="icon-small"></span>
-                                                <span class="hide-menu">Directorates</span>
-                                            </a>
-                                        </li>
-                                    @endcan
+                                    @if(setting('enable_directorates', true))
+                                        @can('view-directorates')
+                                            <li class="sidebar-item">
+                                                <a class="sidebar-link" href="{{ route('directorates.index') }}">
+                                                    <span class="icon-small"></span>
+                                                    <span class="hide-menu">Directorates</span>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    @endif
 
-                                    @can('view-departments')
-                                        <li class="sidebar-item">
-                                            <a class="sidebar-link" href="{{ route('departments.index') }}">
-                                                <span class="icon-small"></span>
-                                                <span class="hide-menu">Department</span>
-                                            </a>
-                                        </li>
-                                    @endcan
+                                    @if(setting('enable_departments', true))
+                                        @can('view-departments')
+                                            <li class="sidebar-item">
+                                                <a class="sidebar-link" href="{{ route('departments.index') }}">
+                                                    <span class="icon-small"></span>
+                                                    <span class="hide-menu">Department</span>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    @endif
 
-                                    @can('view-units')
-                                        <li class="sidebar-item">
-                                            <a class="sidebar-link" href="{{ route('units.index') }}">
-                                                <span class="icon-small"></span>
-                                                <span class="hide-menu">Unit</span>
-                                            </a>
-                                        </li>
-                                    @endcan
+                                    @if(setting('enable_units', true))
+                                        @can('view-units')
+                                            <li class="sidebar-item">
+                                                <a class="sidebar-link" href="{{ route('units.index') }}">
+                                                    <span class="icon-small"></span>
+                                                    <span class="hide-menu">Unit</span>
+                                                </a>
+                                            </li>
+                                        @endcan
+                                    @endif
 
                                     @can('view-personnels')
                                         <li class="sidebar-item">

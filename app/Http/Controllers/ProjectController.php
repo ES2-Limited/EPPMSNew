@@ -173,10 +173,11 @@ class ProjectController extends Controller
         $directorates = Directorate::select('id', 'ulid', 'name', 'function')->whereHas('department')->get();
         $personnels = Personnel::select('id', 'ulid', 'user_id')->with('user')->get();
         $departments = Department::select('id', 'name')->get();
+        $units = \App\Models\Unit::select('id', 'name', 'department_id')->get();
         $offices = Office::select('id', 'ulid', 'name')->orderBy('created_at', 'desc')->get();
         $states = State::select('id', 'name')->get();
         $roles = Role::select('id', 'name')->get();
-        return view('projects.edit', compact('project', 'directorates', 'contractors', 'offices', 'departments', 'consultants'));
+        return view('projects.edit', compact('project', 'directorates', 'contractors', 'offices', 'departments', 'units', 'consultants'));
     }
 
     /**

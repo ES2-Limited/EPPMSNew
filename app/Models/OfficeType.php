@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class OfficeType extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['name'];
+
+    public function offices()
+    {
+        return $this->hasMany(Office::class);
+    }
 }

@@ -12,6 +12,7 @@ use App\Http\Controllers\MilestoneChatController;
 use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfficeController;
+use App\Http\Controllers\OfficeTypeController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\ProjectChatController;
@@ -178,6 +179,10 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/settings/{id}', [SettingController::class, 'update'])->name('settings.update.single');
             Route::get('/settings/create', [SettingController::class, 'create'])->name('settings.create');
             Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');
+
+            Route::post('/office-types', [OfficeTypeController::class, 'store'])->name('office-types.store');
+            Route::put('/office-types/{id}', [OfficeTypeController::class, 'update'])->name('office-types.update');
+            Route::delete('/office-types/{id}', [OfficeTypeController::class, 'destroy'])->name('office-types.destroy');
         });
     });
 

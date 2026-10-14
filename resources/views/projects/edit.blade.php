@@ -85,44 +85,92 @@
                             </div>
 
                             <!-- Section 2: Department & Structure -->
+                            @php
+                                $enableDirectorates = (bool)setting('enable_directorates', true);
+                                $enableDepartments = (bool)setting('enable_departments', true);
+                                $enableUnits = (bool)setting('enable_units', true);
+                                $primaryTier = setting('project_primary_tier', 'directorate');
+                            @endphp
+
+                            @if($enableDirectorates || $enableDepartments || $enableUnits)
                             <div class="mb-4 pb-3 border-bottom">
                                 <h5 class="fw-bold text-dark mb-1"><i class="ti ti-building me-2 text-primary"></i>Organizational Allocation</h5>
-                                <p class="text-muted small">Select the governing directorate and department.</p>
+                                <p class="text-muted small">Update the governing organizational level responsible for this project.</p>
 
                                 <div class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-semibold" for="directorate">Directorate Name <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="directorate" name="directorate_id" required>
-                                            <option value="" disabled>Choose directorate</option>
-                                            @foreach ($directorates as $directorate)
-                                                <option value="{{ $directorate->id }}"
-                                                    {{ ($project->department?->directorate?->id == $directorate->id || old('directorate_id') == $directorate->id) ? 'selected' : '' }}>
-                                                    {{ $directorate->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                                    @if($enableDirectorates)
+                                        <div class="{{ $enableDepartments && $enableUnits ? 'col-md-4' : ($enableDepartments || $enableUnits ? 'col-md-6' : 'col-md-12') }}">
+                                            <label class="form-label fw-semibold" for="directorate">
+                                                Project Directorate 
+                                                @if($primaryTier === 'directorate') <span class="text-danger">*</span> @endif
+                                            </label>
+                                            <select class="form-select" id="directorate" name="directorate_id" {{ $primaryTier === 'directorate' ? 'required' : '' }}>
+                                                <option value="">Choose directorate</option>
+                                                @foreach ($directorates as $directorate)
+                                                    <option value="{{ $directorate->id }}"
+                                                        {{ ($project->directorate_id == $directorate->id || $project->department?->directorate_id == $directorate->id || old('directorate_id') == $directorate->id) ? 'selected' : '' }}>
+                                                        {{ $directorate->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('directorate_id')
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    @endif
 
-                                    <div class="col-md-6">
-                                        <label class="form-label fw-semibold" for="department">Project Department <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="department" name="department_id" required>
-                                            <option value="" disabled>Choose Department</option>
-                                            @foreach ($departments as $department)
-                                                <option value="{{ $department->id }}"
-                                                    {{ (old('department_id', $project->department_id) == $department->id) ? 'selected' : '' }}>
-                                                    {{ $department->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('department_id')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                        <span id="department-error" class="text-danger small" style="display:none;">
-                                            No departments available for this directorate
-                                        </span>
-                                    </div>
+                                    @if($enableDepartments)
+                                        <div class="{{ $enableDirectorates && $enableUnits ? 'col-md-4' : ($enableDirectorates || $enableUnits ? 'col-md-6' : 'col-md-12') }}">
+                                            <label class="form-label fw-semibold" for="department">
+                                                Project Department
+                                                @if($primaryTier === 'department') <span class="text-danger">*</span> @endif
+                                            </label>
+                                            <select class="form-select" id="department" name="department_id" {{ $primaryTier === 'department' ? 'required' : '' }}>
+                                                <option value="">Choose Department</option>
+                                                @foreach ($departments as $department)
+                                                    <option value="{{ $department->id }}"
+                                                        {{ (old('department_id', $project->department_id) == $department->id) ? 'selected' : '' }}>
+                                                        {{ $department->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('department_id')
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
+                                            <span id="department-error" class="text-danger small" style="display:none;">
+                                                No departments available for this directorate
+                                            </span>
+                                        </div>
+                                    @endif
+
+                                    @if($enableUnits)
+                                        <div class="{{ $enableDirectorates && $enableDepartments ? 'col-md-4' : ($enableDirectorates || $enableDepartments ? 'col-md-6' : 'col-md-12') }}">
+                                            <label class="form-label fw-semibold" for="unit">
+                                                Project Unit
+                                                @if($primaryTier === 'unit') <span class="text-danger">*</span> @endif
+                                            </label>
+                                            <select class="form-select" id="unit" name="unit_id" {{ $primaryTier === 'unit' ? 'required' : '' }}>
+                                                <option value="">Choose Unit</option>
+                                                @if(isset($units))
+                                                    @foreach ($units as $unit)
+                                                        <option value="{{ $unit->id }}"
+                                                            {{ (old('unit_id', $project->unit_id) == $unit->id) ? 'selected' : '' }}>
+                                                            {{ $unit->name }}
+                                                        </option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                            @error('unit_id')
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                            @enderror
+                                            <span id="unit-error" class="text-danger small" style="display:none;">
+                                                No units available for this department
+                                            </span>
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
+                            @endif
 
                             <!-- Section 3: Partners -->
                             <div class="mb-4 pb-3 border-bottom">
@@ -292,6 +340,34 @@
                 }).fail(function() {
                     $("#department").append(`<option value="">Error loading departments</option>`);
                     $("#department").prop("disabled", true);
+                });
+            }
+
+            $('#department').on('change', function() {
+                let department = $("#department").val();
+                fetchUnits(department);
+            });
+
+            function fetchUnits(department) {
+                const unit_error = document.getElementById('unit-error');
+                $('#unit').children('option:not(:first)').remove();
+                if (!department) return;
+
+                $.ajax({
+                    type: "GET",
+                    url: "/get-units",
+                    data: {
+                        department_id: department
+                    }
+                }).done(function(data) {
+                    if (!data || data.length === 0) {
+                        if (unit_error) unit_error.style.display = 'inline-block';
+                    } else {
+                        if (unit_error) unit_error.style.display = 'none';
+                        $.each(data, function(index, item) {
+                            $("#unit").append(`<option value="${item.id}">${item.name}</option>`);
+                        });
+                    }
                 });
             }
 

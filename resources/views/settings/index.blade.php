@@ -70,6 +70,18 @@
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link py-3 px-4 fw-semibold {{ $activeTab === 'hierarchy' ? 'active' : '' }}" 
+                                id="hierarchy-tab" data-bs-toggle="tab" data-bs-target="#hierarchy-pane" type="button" role="tab">
+                            <i class="fas fa-sitemap me-2 text-primary"></i> Hierarchy & Project Tiers
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-3 px-4 fw-semibold {{ $activeTab === 'offices' ? 'active' : '' }}" 
+                                id="offices-tab" data-bs-toggle="tab" data-bs-target="#offices-pane" type="button" role="tab">
+                            <i class="fas fa-building me-2 text-primary"></i> Office Types & Locations
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link py-3 px-4 fw-semibold {{ $activeTab === 'signatures' ? 'active' : '' }}" 
                                 id="signatures-tab" data-bs-toggle="tab" data-bs-target="#signatures-pane" type="button" role="tab">
                             <i class="fas fa-file-signature me-2 text-primary"></i> Management Signatures
@@ -235,7 +247,215 @@
                         </form>
                     </div>
 
-                    <!-- TAB 4: MANAGEMENT SIGNATURES -->
+                    <!-- TAB 4: HIERARCHY & PROJECT TIERS -->
+                    <div class="tab-pane fade {{ $activeTab === 'hierarchy' ? 'show active' : '' }}" id="hierarchy-pane" role="tabpanel">
+                        <form action="{{ route('settings.update.batch') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="group" value="hierarchy">
+
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center gap-3">
+                                        <i class="fas fa-info-circle fs-4 text-info"></i>
+                                        <div>
+                                            <strong>Organizational Structure & Project Binding:</strong>
+                                            <p class="mb-0 small">Toggle which organizational levels are active across the system. Deactivating a tier hides it from project creation forms and navigation.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Tier Toggles -->
+                                <div class="col-md-4">
+                                    <div class="card h-100 border rounded-3 p-3 bg-light">
+                                        <div class="form-check form-switch d-flex justify-content-between align-items-center ps-0">
+                                            <label class="form-check-label fw-bold text-dark fs-4 mb-0" for="enableDirectoratesSwitch">
+                                                Directorates Tier
+                                            </label>
+                                            <input class="form-check-input ms-3 fs-5" type="checkbox" name="enable_directorates" value="1" 
+                                                   id="enableDirectoratesSwitch" {{ setting('enable_directorates', true) ? 'checked' : '' }}>
+                                        </div>
+                                        <p class="text-muted small mt-2 mb-0">Highest internal executive divisions (e.g. Directorate of Airworthiness).</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="card h-100 border rounded-3 p-3 bg-light">
+                                        <div class="form-check form-switch d-flex justify-content-between align-items-center ps-0">
+                                            <label class="form-check-label fw-bold text-dark fs-4 mb-0" for="enableDepartmentsSwitch">
+                                                Departments Tier
+                                            </label>
+                                            <input class="form-check-input ms-3 fs-5" type="checkbox" name="enable_departments" value="1" 
+                                                   id="enableDepartmentsSwitch" {{ setting('enable_departments', true) ? 'checked' : '' }}>
+                                        </div>
+                                        <p class="text-muted small mt-2 mb-0">Departmental subdivisions responsible for operational execution.</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="card h-100 border rounded-3 p-3 bg-light">
+                                        <div class="form-check form-switch d-flex justify-content-between align-items-center ps-0">
+                                            <label class="form-check-label fw-bold text-dark fs-4 mb-0" for="enableUnitsSwitch">
+                                                Units Tier
+                                            </label>
+                                            <input class="form-check-input ms-3 fs-5" type="checkbox" name="enable_units" value="1" 
+                                                   id="enableUnitsSwitch" {{ setting('enable_units', true) ? 'checked' : '' }}>
+                                        </div>
+                                        <p class="text-muted small mt-2 mb-0">Specialized operational units under departments or directly under executive office.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Primary Project Tie -->
+                                <div class="col-md-8">
+                                    <label class="form-label fw-bold">Primary Project Ownership Tier <span class="text-danger">*</span></label>
+                                    @php
+                                        $primaryTier = setting('project_primary_tier', 'directorate');
+                                    @endphp
+                                    <select name="project_primary_tier" class="form-select" required>
+                                        <option value="directorate" {{ $primaryTier === 'directorate' ? 'selected' : '' }}>
+                                            Directorate (Required: Projects belong primarily to a Directorate)
+                                        </option>
+                                        <option value="department" {{ $primaryTier === 'department' ? 'selected' : '' }}>
+                                            Department (Required: Projects belong directly to a Department)
+                                        </option>
+                                        <option value="unit" {{ $primaryTier === 'unit' ? 'selected' : '' }}>
+                                            Unit (Required: Projects belong directly to a Specialized Unit)
+                                        </option>
+                                        <option value="optional" {{ $primaryTier === 'optional' ? 'selected' : '' }}>
+                                            Flexible / Optional (Any active tier can be assigned without enforcing one)
+                                        </option>
+                                    </select>
+                                    <div class="form-text">Controls which field is mandatory when personnel create or update projects.</div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-top d-flex justify-content-end">
+                                <button type="submit" class="btn text-white px-4 py-2" style="background-color: #01054C;">
+                                    <i class="fas fa-save me-1"></i> Save Hierarchy Settings
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- TAB 5: OFFICE TYPES & LOCATIONS -->
+                    <div class="tab-pane fade {{ $activeTab === 'offices' ? 'show active' : '' }}" id="offices-pane" role="tabpanel">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                            <div>
+                                <h5 class="fw-bold mb-1">Office Typology & Classifications</h5>
+                                <p class="text-muted small mb-0">Manage office types (e.g. Headquarters, Regional Command, Field Station) assigned to physical locations.</p>
+                            </div>
+                            <div class="mt-3 mt-md-0 d-flex gap-2">
+                                <a href="{{ route('offices.index') }}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-map-marker-alt me-1"></i> View Office Locations ({{ $officesCount }})
+                                </a>
+                                <button type="button" class="btn btn-sm text-white" style="background-color: #01054C;" 
+                                        data-bs-toggle="modal" data-bs-target="#createOfficeTypeModal">
+                                    <i class="fas fa-plus me-1"></i> Add Office Type
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Office Types Table -->
+                        <div class="table-responsive border rounded-3">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3 py-3">Office Type Name</th>
+                                        <th class="py-3">Attached Locations</th>
+                                        <th class="py-3">Created</th>
+                                        <th class="text-end pe-3 py-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($officeTypes as $type)
+                                        <tr>
+                                            <td class="ps-3 py-3 fw-semibold text-dark">
+                                                <i class="fas fa-building text-primary me-2"></i> {{ $type->name }}
+                                            </td>
+                                            <td class="py-3">
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                                    {{ $type->offices_count }} location(s)
+                                                </span>
+                                            </td>
+                                            <td class="py-3 text-muted small">
+                                                {{ $type->created_at ? $type->created_at->diffForHumans() : 'System Default' }}
+                                            </td>
+                                            <td class="text-end pe-3 py-3">
+                                                <div class="d-inline-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                            data-bs-toggle="modal" data-bs-target="#editOfficeTypeModal-{{ $type->id }}">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </button>
+                                                    <form action="{{ route('office-types.destroy', $type->id) }}" method="POST" 
+                                                          onsubmit="return confirm('Delete office type {{ $type->name }}?');" class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                                {{ $type->offices_count > 0 ? 'disabled title="Locations attached"' : '' }}>
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Edit Office Type Modal -->
+                                        <div class="modal fade" id="editOfficeTypeModal-{{ $type->id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <form action="{{ route('office-types.update', $type->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Office Type</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <label class="form-label fw-bold">Office Type Name <span class="text-danger">*</span></label>
+                                                            <input type="text" name="name" class="form-control" value="{{ $type->name }}" required>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn text-white" style="background-color: #01054C;">Update Type</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center py-4 text-muted">No office types defined yet.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Create Office Type Modal -->
+                        <div class="modal fade" id="createOfficeTypeModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form action="{{ route('office-types.store') }}" method="POST">
+                                        @csrf
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Create Office Type</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <label class="form-label fw-bold">Office Type Name <span class="text-danger">*</span></label>
+                                            <input type="text" name="name" class="form-control" placeholder="e.g. Airport Command, Liaison Office" required>
+                                            <div class="form-text">Used to classify physical facilities and offices across the country.</div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn text-white" style="background-color: #01054C;">Add Type</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 6: MANAGEMENT SIGNATURES -->
                     <div class="tab-pane fade {{ $activeTab === 'signatures' ? 'show active' : '' }}" id="signatures-pane" role="tabpanel">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div>

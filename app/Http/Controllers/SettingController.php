@@ -20,20 +20,27 @@ class SettingController extends Controller
         $generalSettings = $allSettings->where('group', 'general')->keyBy('key');
         $brandingSettings = $allSettings->where('group', 'branding')->keyBy('key');
         $localizationSettings = $allSettings->where('group', 'localization')->keyBy('key');
+        $hierarchySettings = $allSettings->where('group', 'hierarchy')->keyBy('key');
         $signatures = $allSettings->filter(function ($item) {
             return $item->group === 'signatures' || !empty($item->signature);
         });
+
+        $officeTypes = \App\Models\OfficeType::withCount('offices')->get();
+        $officesCount = \App\Models\Office::count();
 
         return view('settings.index', compact(
             'generalSettings',
             'brandingSettings',
             'localizationSettings',
-            'signatures'
+            'hierarchySettings',
+            'signatures',
+            'officeTypes',
+            'officesCount'
         ));
     }
 
     /**
-     * Batch update system settings (General, Branding, Localization).
+     * Batch update system settings (General, Branding, Localization, Hierarchy).
      */
     public function updateBatch(Request $request)
     {
@@ -82,6 +89,15 @@ class SettingController extends Controller
             SettingService::set('currency_symbol', $request->input('currency_symbol'), 'localization', 'text', 'Currency Symbol');
             SettingService::set('currency_code', $request->input('currency_code'), 'localization', 'text', 'Currency Code');
             SettingService::set('date_format', $request->input('date_format'), 'localization', 'text', 'Standard Date Format');
+        } elseif ($group === 'hierarchy') {
+            $request->validate([
+                'project_primary_tier' => 'required|in:directorate,department,unit,optional',
+            ]);
+
+            SettingService::set('enable_directorates', $request->has('enable_directorates') ? '1' : '0', 'hierarchy', 'boolean', 'Enable Directorates Tier');
+            SettingService::set('enable_departments', $request->has('enable_departments') ? '1' : '0', 'hierarchy', 'boolean', 'Enable Departments Tier');
+            SettingService::set('enable_units', $request->has('enable_units') ? '1' : '0', 'hierarchy', 'boolean', 'Enable Units Tier');
+            SettingService::set('project_primary_tier', $request->input('project_primary_tier'), 'hierarchy', 'select', 'Project Primary Hierarchy Tier');
         }
 
         SettingService::clearCache();

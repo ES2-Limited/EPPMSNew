@@ -23,6 +23,7 @@ class Project extends Model
         'description',
         'department_id',
         'directorate_id',
+        'unit_id',
         'contractor_id',
         'consultant_id',
         'duration',

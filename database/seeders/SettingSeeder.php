@@ -108,6 +108,44 @@ class SettingSeeder extends Seeder
                 'description' => 'Display format for project and milestone dates (e.g. d M, Y)',
                 'active' => true,
             ],
+
+            // Organizational Hierarchy Toggles & Project Allocation
+            [
+                'key' => 'enable_directorates',
+                'value' => '1',
+                'name' => 'Enable Directorates Tier',
+                'group' => 'hierarchy',
+                'type' => 'boolean',
+                'description' => 'Allow projects and organization to be structured into Directorates',
+                'active' => true,
+            ],
+            [
+                'key' => 'enable_departments',
+                'value' => '1',
+                'name' => 'Enable Departments Tier',
+                'group' => 'hierarchy',
+                'type' => 'boolean',
+                'description' => 'Allow projects and organization to be structured into Departments',
+                'active' => true,
+            ],
+            [
+                'key' => 'enable_units',
+                'value' => '1',
+                'name' => 'Enable Units Tier',
+                'group' => 'hierarchy',
+                'type' => 'boolean',
+                'description' => 'Allow projects and organization to be structured into Units',
+                'active' => true,
+            ],
+            [
+                'key' => 'project_primary_tier',
+                'value' => 'directorate',
+                'name' => 'Project Primary Hierarchy Tier',
+                'group' => 'hierarchy',
+                'type' => 'select',
+                'description' => 'Determines which organizational tier is required when creating a project (directorate, department, unit, or optional)',
+                'active' => true,
+            ],
         ];
 
         foreach ($settings as $setting) {

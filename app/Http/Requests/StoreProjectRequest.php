@@ -21,20 +21,28 @@ class StoreProjectRequest extends FormRequest
      */
     public function rules(): array
     {
+        $primaryTier = setting('project_primary_tier', 'directorate');
+        $enableDirectorates = (bool)setting('enable_directorates', true);
+        $enableDepartments = (bool)setting('enable_departments', true);
+        $enableUnits = (bool)setting('enable_units', true);
+
+        $directorateRule = ($enableDirectorates && $primaryTier === 'directorate') ? 'required|exists:directorates,id' : 'nullable|exists:directorates,id';
+        $departmentRule = ($enableDepartments && $primaryTier === 'department') ? 'required|exists:departments,id' : 'nullable|exists:departments,id';
+        $unitRule = ($enableUnits && $primaryTier === 'unit') ? 'required|exists:units,id' : 'nullable|exists:units,id';
+
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'department_id' => 'nullable|exists:departments,id',
-            'directorate_id' => 'required|exists:directorates,id',
+            'directorate_id' => $directorateRule,
+            'department_id' => $departmentRule,
+            'unit_id' => $unitRule,
             'project_type_id' => 'required|exists:project_types,id',
-            // 'unit_id' => 'required|exists:units,id',
             'contractor_id' => 'required|exists:contractors,id',
             'consultant_id' => 'nullable|exists:contractors,id',
             'cost' => 'required|numeric|min:0',
             'location' => 'nullable|string|max:255',
             'duration' => 'required|string|min:1',
             'duration_period' => 'required|string',
-            // 'state_id' => 'required|exists:states,id',
             'office_id' => 'required|exists:offices,id',
             'award_date' => 'required|date',
             'deadline' => 'sometimes|date|after:award_date',
