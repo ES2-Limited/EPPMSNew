@@ -111,12 +111,29 @@ class ReportController extends Controller
 
     public function print_milestone_report(Request $request, $ulid){
         $milestone = Milestone::where('ulid', $ulid)->with(['project.project_personnel.personnel.user', 'tasks'])->firstOrFail();
-        return view('reports.milestone-report', compact('milestone'));
+        
+        $signatoryId = setting('certificate_signatory_id');
+        $signatory = $signatoryId ? Setting::find($signatoryId) : null;
+        if (! $signatory) {
+            $signatory = Setting::where('active', true)->where(function ($q) {
+                $q->where('group', 'signatures')->orWhereNotNull('signature');
+            })->first();
+        }
+
+        return view('reports.milestone-report', compact('milestone', 'signatory'));
     }
 
     public function print_project_report(Request $request, $ulid){
-        $project = Project::where('ulid', $ulid)->with(['milestones.tasks'])->firstOrFail();
-        $settings = Setting::select('key', 'name', 'active', 'updated_at')->where('key', 'LIKE', '%director%')->first();
-        return view('reports.project-report', compact('project', 'settings'));
+        $project = Project::where('ulid', $ulid)->with(['milestones.tasks', 'fiscal_year', 'funding_source', 'office', 'contractor.user'])->firstOrFail();
+        
+        $signatoryId = setting('certificate_signatory_id');
+        $signatory = $signatoryId ? Setting::find($signatoryId) : null;
+        if (! $signatory) {
+            $signatory = Setting::where('active', true)->where(function ($q) {
+                $q->where('group', 'signatures')->orWhereNotNull('signature');
+            })->first();
+        }
+
+        return view('reports.project-report', compact('project', 'signatory'));
     }
 }

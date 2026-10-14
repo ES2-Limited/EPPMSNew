@@ -31,21 +31,31 @@ class SettingController extends Controller
         $projectTypes = \App\Models\ProjectType::withCount('projects')->get();
         $firmTypes = \App\Models\FirmType::withCount('contractors')->get();
 
+        $fiscalYears = \App\Models\FiscalYear::withCount('projects')->orderBy('year', 'desc')->get();
+        $fundingSources = \App\Models\FundingSource::withCount('projects')->orderBy('name')->get();
+
+        $certificateSettings = $allSettings->where('group', 'certificates')->keyBy('key');
+        $notificationSettings = $allSettings->where('group', 'notifications')->keyBy('key');
+
         return view('settings.index', compact(
             'generalSettings',
             'brandingSettings',
             'localizationSettings',
             'hierarchySettings',
+            'certificateSettings',
+            'notificationSettings',
             'signatures',
             'officeTypes',
             'officesCount',
             'projectTypes',
-            'firmTypes'
+            'firmTypes',
+            'fiscalYears',
+            'fundingSources'
         ));
     }
 
     /**
-     * Batch update system settings (General, Branding, Localization, Hierarchy).
+     * Batch update system settings (General, Branding, Localization, Hierarchy, Certificates, Notifications).
      */
     public function updateBatch(Request $request)
     {
@@ -103,12 +113,33 @@ class SettingController extends Controller
             SettingService::set('enable_departments', $request->has('enable_departments') ? '1' : '0', 'hierarchy', 'boolean', 'Enable Departments Tier');
             SettingService::set('enable_units', $request->has('enable_units') ? '1' : '0', 'hierarchy', 'boolean', 'Enable Units Tier');
             SettingService::set('project_primary_tier', $request->input('project_primary_tier'), 'hierarchy', 'select', 'Project Primary Hierarchy Tier');
+        } elseif ($group === 'certificates') {
+            $request->validate([
+                'certificate_title' => 'required|string|max:255',
+                'ipc_certificate_title' => 'required|string|max:255',
+                'certificate_attestation' => 'nullable|string',
+                'certificate_signatory_id' => 'nullable|exists:settings,id',
+            ]);
+
+            SettingService::set('certificate_title', $request->input('certificate_title'), 'certificates', 'text', 'Project Completion Certificate Title');
+            SettingService::set('ipc_certificate_title', $request->input('ipc_certificate_title'), 'certificates', 'text', 'Milestone IPC Certificate Title');
+            SettingService::set('certificate_attestation', $request->input('certificate_attestation'), 'certificates', 'text', 'Legal Attestation / Compliance Statement');
+            SettingService::set('certificate_signatory_id', $request->input('certificate_signatory_id'), 'certificates', 'select', 'Official Authorized Signatory');
+        } elseif ($group === 'notifications') {
+            $request->validate([
+                'audit_notification_email' => 'nullable|email|max:255',
+            ]);
+
+            SettingService::set('notify_project_award', $request->has('notify_project_award') ? '1' : '0', 'notifications', 'boolean', 'Notify on Project Award');
+            SettingService::set('notify_milestone_completion', $request->has('notify_milestone_completion') ? '1' : '0', 'notifications', 'boolean', 'Notify on Milestone Completion');
+            SettingService::set('notify_task_completion', $request->has('notify_task_completion') ? '1' : '0', 'notifications', 'boolean', 'Notify on Task Done');
+            SettingService::set('audit_notification_email', $request->input('audit_notification_email'), 'notifications', 'text', 'Procurement / Audit Oversight CC Email');
         }
 
         SettingService::clearCache();
 
         return redirect()->route('settings.index', ['tab' => $group])
-            ->with('success', ucfirst($group) . ' settings updated successfully!');
+            ->with('success', ucfirst(str_replace('_', ' ', $group)) . ' settings updated successfully!');
     }
 
     /**

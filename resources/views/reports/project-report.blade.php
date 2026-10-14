@@ -39,37 +39,49 @@
                     Back to Project</a>
             </span>
         </div>
-        <img src="{{ asset('/assets/images/logos/ncaalogo.png') }}" alt="Logo" class="company-logo" />
-        <h3 class="mt-3">Nigerian Civil Aviation Authority HQ, Abuja</h3>
-        <p class="lead">Project Completion Certificate</p>
+        <img src="{{ setting_asset('app_logo', 'assets/images/logos/ncaalogo.png') }}" alt="Logo" class="company-logo" />
+        <h3 class="mt-3 fw-bold">{{ setting('organization_name', 'Nigerian Civil Aviation Authority HQ, Abuja') }}</h3>
+        <p class="lead fw-semibold text-primary">{{ setting('certificate_title', 'Project Completion Certificate') }}</p>
     </div>
 
     <div class="container">
         <div>
-            <p> This is to certify that
+            <p class="fs-5"> This is to certify that
                 <strong>{{ $project->contractor?->user?->name ?? $project->contractor?->user?->first_name . ' ' . $project->contractor?->user?->last_name }}
                 </strong>
                 has successfully completed the project titled: <strong>{{ $project->name }}</strong> located at
-                <strong>{{ $project->location }}</strong>.
+                <strong>{{ $project->location ?? ($project->office?->name ?? 'Headquarters') }}</strong>.
             </p>
 
-            <h5 class="my-4">Project Details</h5>
+            <h5 class="my-4 fw-bold border-bottom pb-2">Project & Budgetary Details</h5>
 
-            <div class="row">
+            <div class="row g-3">
                 <div class="col-md-6">
                     <p><strong>Project Name:</strong> {{ $project->name }}</p>
-                    <p><strong>Project Cost:</strong> ₦{{ number_format($project->cost, 2) }}</p>
+                    <p><strong>Project Cost:</strong> {{ format_currency($project->cost) }}</p>
                     <p><strong>Project Progress:</strong> {{ $project?->get_progress() }}%</p>
                     <p><strong>Total Milestones:</strong> {{ $project->milestones->count() }}</p>
+                    @if($project->project_type)
+                        <p><strong>Project Typology:</strong> {{ $project->project_type->name }}</p>
+                    @endif
                 </div>
                 <div class="col-md-6">
-                    <p><strong>Start Date:</strong> {{ $project->created_at->format('Y-m-d H:i:s') }}</p>
-                    <p><strong>Completion Date:</strong> {{ $project->updated_at->format('Y-m-d H:i:s') }}</p>
+                    <p><strong>Award Date:</strong> {{ $project->award_date ?? $project->created_at->format('Y-m-d') }}</p>
+                    <p><strong>Completion Date:</strong> {{ $project->updated_at->format('Y-m-d') }}</p>
                     <p><strong>Duration:</strong> {{ $project->duration . ' ' . $project->duration_period }}</p>
+                    @if($project->fiscal_year)
+                        <p><strong>Fiscal Year:</strong> {{ $project->fiscal_year->year }}</p>
+                    @endif
+                    @if($project->funding_source)
+                        <p><strong>Funding Source:</strong> {{ $project->funding_source->name }}</p>
+                    @endif
+                    @if($project->budget_code)
+                        <p><strong>Budget Code / Subhead:</strong> {{ $project->budget_code }}</p>
+                    @endif
                 </div>
             </div>
 
-            <div class="mt-1">
+            <div class="mt-2">
                 <p><strong>Project Description:</strong> <span class="text-muted">{{ $project->description }}</span>
                 </p>
             </div>
@@ -91,26 +103,17 @@
                     <tbody>
                         @forelse ($project->milestones as $milestone)
                             <tr>
-                                <td>{{ $milestone->name }}</td>
-                                <td>{{ $milestone->amount }}</td>
+                                <td class="fw-semibold">{{ $milestone->name }}</td>
+                                <td>{{ format_currency($milestone->amount) }}</td>
                                 <td>{{ $milestone->get_progress() }}%</td>
-                                @php
-                                    $value = Str::ucfirst($milestone->status?->value);
-                                @endphp
                                 <td>
-                                    <span
-                                        class="badge
-                                @if ($value === 'done') bg-success
-                                @elseif($value === 'pending') bg-warning
-                                @else bg-secondary @endif ">
-                                        {{ ucfirst($value) }}
-                                    </span>
+                                    {!! status_badge($milestone->status) !!}
                                 </td>
-                                <td>{{ $milestone->tasks?->count() }}</td>
+                                <td>{{ $milestone->tasks?->count() ?? 0 }}</td>
                             </tr>
                         @empty
-                            <tr colspan="3">
-                                No project milestones registered!!!
+                            <tr>
+                                <td colspan="5" class="text-center py-3 text-muted">No project milestones registered.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -128,13 +131,26 @@
             </div>
 
         </div>
-        <div>
-            <p>The project has been executed in accordance with the agreed-upon specifications and standards.</p>
-            <h5>Authorized Signatory:</h5>
-            _________________________
-            <p>{{ $settings->name ?? 'No Signatory added'}} <br>
-                <i>{{ ($settings) ? $settings->updated_at?->format('F j, Y g:i A') : 'No Signatory date' }}</i>
+        <div class="mt-4 pt-3 border-top">
+            <p class="fst-italic text-secondary">
+                {{ setting('certificate_attestation', 'The project has been executed in accordance with agreed-upon specifications, civil aviation safety guidelines, and statutory engineering standards.') }}
             </p>
+            <div class="mt-4">
+                <h6 class="fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px;">Authorized Executive Signatory:</h6>
+                @if(isset($signatory) && $signatory)
+                    @if($signatory->signature && file_exists(public_path('storage/signature_files/' . $signatory->signature)))
+                        <img src="{{ asset('storage/signature_files/' . $signatory->signature) }}" alt="Signature" style="max-height: 60px; display: block; margin-bottom: 5px;">
+                    @else
+                        <div style="border-bottom: 1.5px solid #333; width: 220px; margin-bottom: 8px;"></div>
+                    @endif
+                    <p class="mb-0 fw-bold fs-6">{{ $signatory->name }}</p>
+                    <p class="text-muted small mb-0">{{ $signatory->description ?? 'Authorized Executive' }} &bull; <i>{{ now()->format(setting('date_format', 'F j, Y')) }}</i></p>
+                @else
+                    <div style="border-bottom: 1.5px solid #333; width: 220px; margin-bottom: 8px;"></div>
+                    <p class="mb-0 fw-bold">{{ setting('organization_name', 'Director-General / CEO') }}</p>
+                    <p class="text-muted small mb-0">Official Clearance &bull; <i>{{ now()->format('F j, Y') }}</i></p>
+                @endif
+            </div>
         </div>
     </div>
 

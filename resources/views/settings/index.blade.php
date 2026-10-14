@@ -99,6 +99,24 @@
                             <i class="fas fa-file-signature me-2 text-primary"></i> Management Signatures
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-3 px-4 fw-semibold {{ $activeTab === 'fiscal_budget' ? 'active' : '' }}" 
+                                id="fiscal_budget-tab" data-bs-toggle="tab" data-bs-target="#fiscal_budget-pane" type="button" role="tab">
+                            <i class="fas fa-coins me-2 text-primary"></i> Budget & Fiscal
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-3 px-4 fw-semibold {{ $activeTab === 'certificates' ? 'active' : '' }}" 
+                                id="certificates-tab" data-bs-toggle="tab" data-bs-target="#certificates-pane" type="button" role="tab">
+                            <i class="fas fa-certificate me-2 text-primary"></i> Reports & Certificates
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-3 px-4 fw-semibold {{ $activeTab === 'notifications' ? 'active' : '' }}" 
+                                id="notifications-tab" data-bs-toggle="tab" data-bs-target="#notifications-pane" type="button" role="tab">
+                            <i class="fas fa-bell me-2 text-primary"></i> Notifications & Alerts
+                        </button>
+                    </li>
                 </ul>
             </div>
 
@@ -794,6 +812,387 @@
                                 </div>
                             @endforelse
                         </div>
+                    </div>
+
+                    <!-- TAB: FISCAL & BUDGETING -->
+                    <div class="tab-pane fade {{ $activeTab === 'fiscal_budget' ? 'show active' : '' }}" id="fiscal_budget-pane" role="tabpanel">
+                        <!-- Fiscal Years Section -->
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1"><i class="fas fa-calendar-alt text-primary me-2"></i>Fiscal / Appropriation Years</h5>
+                                <p class="text-muted small mb-0">Manage federal budget years and appropriation cycles (e.g., 2024, 2025, 2026).</p>
+                            </div>
+                            <div class="mt-3 mt-md-0">
+                                <button type="button" class="btn btn-sm text-white" style="background-color: #01054C;" 
+                                        data-bs-toggle="modal" data-bs-target="#createFiscalYearModal">
+                                    <i class="fas fa-plus me-1"></i> Add Fiscal Year
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive border rounded-3 mb-5">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3 py-3">Fiscal Year</th>
+                                        <th class="py-3">Description</th>
+                                        <th class="py-3">Status</th>
+                                        <th class="py-3">Associated Projects</th>
+                                        <th class="text-end pe-3 py-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($fiscalYears as $fy)
+                                        <tr>
+                                            <td class="ps-3 py-3 fw-bold text-dark fs-6">{{ $fy->year }}</td>
+                                            <td class="py-3 text-muted">{{ $fy->description ?? 'Standard Appropriation' }}</td>
+                                            <td class="py-3">
+                                                @if($fy->is_active)
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="fas fa-check-circle me-1"></i> Active</span>
+                                                @else
+                                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">Closed / Inactive</span>
+                                                @endif
+                                            </td>
+                                            <td class="py-3">
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                                    {{ $fy->projects_count }} project(s)
+                                                </span>
+                                            </td>
+                                            <td class="text-end pe-3 py-3">
+                                                <div class="d-inline-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                            data-bs-toggle="modal" data-bs-target="#editFiscalYearModal-{{ $fy->id }}">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </button>
+                                                    <form action="{{ route('fiscal-years.destroy', $fy->id) }}" method="POST" 
+                                                          onsubmit="return confirm('Delete fiscal year {{ $fy->year }}?');" class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                                {{ $fy->projects_count > 0 ? 'disabled title="Projects linked to this year"' : '' }}>
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Edit Modal -->
+                                        <div class="modal fade" id="editFiscalYearModal-{{ $fy->id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <form action="{{ route('fiscal-years.update', $fy->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Fiscal Year</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">Year <span class="text-danger">*</span></label>
+                                                                <input type="text" name="year" class="form-control" value="{{ $fy->year }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">Description</label>
+                                                                <input type="text" name="description" class="form-control" value="{{ $fy->description }}">
+                                                            </div>
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox" name="is_active" value="1" id="activeFy-{{ $fy->id }}" {{ $fy->is_active ? 'checked' : '' }}>
+                                                                <label class="form-check-label fw-semibold" for="activeFy-{{ $fy->id }}">Active for Project Selection</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn text-white" style="background-color: #01054C;">Save Changes</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4 text-muted">No fiscal years configured yet.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Create Fiscal Year Modal -->
+                        <div class="modal fade" id="createFiscalYearModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form action="{{ route('fiscal-years.store') }}" method="POST">
+                                        @csrf
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Add Fiscal Year</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Year <span class="text-danger">*</span></label>
+                                                <input type="text" name="year" class="form-control" placeholder="e.g. 2025" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Description</label>
+                                                <input type="text" name="description" class="form-control" placeholder="e.g. 2025 Appropriation Act">
+                                            </div>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" name="is_active" value="1" id="createFyActive" checked>
+                                                <label class="form-check-label fw-semibold" for="createFyActive">Active for Project Selection</label>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn text-white" style="background-color: #01054C;">Add Year</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Funding Sources Section -->
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 pt-3 border-top">
+                            <div>
+                                <h5 class="fw-bold mb-1"><i class="fas fa-money-bill-wave text-success me-2"></i>Funding Sources & Envelopes</h5>
+                                <p class="text-muted small mb-0">Classify capital and recurrent funding streams (e.g. FGN Capital, IGR, Bilateral Grants, PPP).</p>
+                            </div>
+                            <div class="mt-3 mt-md-0">
+                                <button type="button" class="btn btn-sm text-white" style="background-color: #01054C;" 
+                                        data-bs-toggle="modal" data-bs-target="#createFundingSourceModal">
+                                    <i class="fas fa-plus me-1"></i> Add Funding Source
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive border rounded-3">
+                            <table class="table align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3 py-3">Source Name</th>
+                                        <th class="py-3">Code / Acronym</th>
+                                        <th class="py-3">Status</th>
+                                        <th class="py-3">Attached Projects</th>
+                                        <th class="text-end pe-3 py-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($fundingSources as $fs)
+                                        <tr>
+                                            <td class="ps-3 py-3 fw-semibold text-dark">{{ $fs->name }}</td>
+                                            <td class="py-3">
+                                                <span class="badge bg-light text-dark border">{{ $fs->code ?? 'N/A' }}</span>
+                                            </td>
+                                            <td class="py-3">
+                                                @if($fs->is_active)
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"><i class="fas fa-check-circle me-1"></i> Active</span>
+                                                @else
+                                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">Disabled</span>
+                                                @endif
+                                            </td>
+                                            <td class="py-3">
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                                    {{ $fs->projects_count }} project(s)
+                                                </span>
+                                            </td>
+                                            <td class="text-end pe-3 py-3">
+                                                <div class="d-inline-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                            data-bs-toggle="modal" data-bs-target="#editFundingSourceModal-{{ $fs->id }}">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </button>
+                                                    <form action="{{ route('funding-sources.destroy', $fs->id) }}" method="POST" 
+                                                          onsubmit="return confirm('Delete funding source {{ $fs->name }}?');" class="d-inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                                                {{ $fs->projects_count > 0 ? 'disabled title="Projects linked to this source"' : '' }}>
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Edit Modal -->
+                                        <div class="modal fade" id="editFundingSourceModal-{{ $fs->id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <form action="{{ route('funding-sources.update', $fs->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PUT')
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Funding Source</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">Source Name <span class="text-danger">*</span></label>
+                                                                <input type="text" name="name" class="form-control" value="{{ $fs->name }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-bold">Code / Acronym</label>
+                                                                <input type="text" name="code" class="form-control" value="{{ $fs->code }}">
+                                                            </div>
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox" name="is_active" value="1" id="activeFs-{{ $fs->id }}" {{ $fs->is_active ? 'checked' : '' }}>
+                                                                <label class="form-check-label fw-semibold" for="activeFs-{{ $fs->id }}">Active for Project Selection</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn text-white" style="background-color: #01054C;">Save Changes</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center py-4 text-muted">No funding sources configured yet.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Create Funding Source Modal -->
+                        <div class="modal fade" id="createFundingSourceModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <form action="{{ route('funding-sources.store') }}" method="POST">
+                                        @csrf
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Add Funding Source</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Source Name <span class="text-danger">*</span></label>
+                                                <input type="text" name="name" class="form-control" placeholder="e.g. FGN Capital Appropriation" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-bold">Code / Acronym</label>
+                                                <input type="text" name="code" class="form-control" placeholder="e.g. FGN-CAP">
+                                            </div>
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" name="is_active" value="1" id="createFsActive" checked>
+                                                <label class="form-check-label fw-semibold" for="createFsActive">Active for Project Selection</label>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn text-white" style="background-color: #01054C;">Add Source</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: REPORTS & CERTIFICATES -->
+                    <div class="tab-pane fade {{ $activeTab === 'certificates' ? 'show active' : '' }}" id="certificates-pane" role="tabpanel">
+                        <form action="{{ route('settings.update.batch') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="group" value="certificates">
+
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Project Completion Certificate Title <span class="text-danger">*</span></label>
+                                    <input type="text" name="certificate_title" class="form-control" 
+                                           value="{{ $certificateSettings->get('certificate_title')?->value ?? 'Project Completion Certificate' }}" required>
+                                    <div class="form-text">Header text printed at the top of completed project certificates.</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Milestone IPC Certificate Title <span class="text-danger">*</span></label>
+                                    <input type="text" name="ipc_certificate_title" class="form-control" 
+                                           value="{{ $certificateSettings->get('ipc_certificate_title')?->value ?? 'Project Milestone Completion/Interim Payment Certificate (IPC)' }}" required>
+                                    <div class="form-text">Header text printed on milestone Interim Payment Certificates.</div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">Official Attestation / Compliance Statement</label>
+                                    <textarea name="certificate_attestation" class="form-control" rows="3">{{ $certificateSettings->get('certificate_attestation')?->value ?? 'The project has been executed in accordance with agreed-upon specifications, civil aviation safety guidelines, and statutory engineering standards.' }}</textarea>
+                                    <div class="form-text">Legal certification statement printed above the executive signature line on reports.</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Designated Official Executive Signatory</label>
+                                    <select name="certificate_signatory_id" class="form-select">
+                                        <option value="">-- Automatic / Default Signatory --</option>
+                                        @foreach ($signatures as $sig)
+                                            <option value="{{ $sig->id }}" {{ ($certificateSettings->get('certificate_signatory_id')?->value == $sig->id) ? 'selected' : '' }}>
+                                                {{ $sig->name }} ({{ $sig->key }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="form-text">Select which management profile signature is automatically appended to printable certificates.</div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-top text-end">
+                                <button type="submit" class="btn text-white px-4" style="background-color: #01054C;">
+                                    <i class="fas fa-save me-1"></i> Save Certificate Settings
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- TAB: NOTIFICATIONS & ALERTS -->
+                    <div class="tab-pane fade {{ $activeTab === 'notifications' ? 'show active' : '' }}" id="notifications-pane" role="tabpanel">
+                        <form action="{{ route('settings.update.batch') }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="group" value="notifications">
+
+                            <div class="row g-4">
+                                <div class="col-12">
+                                    <h6 class="fw-bold mb-3"><i class="fas fa-envelope-open-text text-primary me-2"></i>Automated Dispatch Triggers</h6>
+                                    
+                                    <div class="p-3 border rounded-3 mb-3 bg-light">
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" name="notify_project_award" value="1" id="notifyAwardSwitch" 
+                                                   {{ (bool)($notificationSettings->get('notify_project_award')?->value ?? true) ? 'checked' : '' }}>
+                                            <label class="form-check-label fw-bold" for="notifyAwardSwitch">Project Award Dispatch</label>
+                                        </div>
+                                        <p class="text-muted small mb-0 ms-4">Notify assigned contractor and technical consultant when a project is created and awarded.</p>
+                                    </div>
+
+                                    <div class="p-3 border rounded-3 mb-3 bg-light">
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" name="notify_milestone_completion" value="1" id="notifyMilestoneSwitch" 
+                                                   {{ (bool)($notificationSettings->get('notify_milestone_completion')?->value ?? true) ? 'checked' : '' }}>
+                                            <label class="form-check-label fw-bold" for="notifyMilestoneSwitch">Milestone Completion Notices</label>
+                                        </div>
+                                        <p class="text-muted small mb-0 ms-4">Send email alerts when milestones are certified and completed.</p>
+                                    </div>
+
+                                    <div class="p-3 border rounded-3 mb-3 bg-light">
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" name="notify_task_completion" value="1" id="notifyTaskSwitch" 
+                                                   {{ (bool)($notificationSettings->get('notify_task_completion')?->value ?? true) ? 'checked' : '' }}>
+                                            <label class="form-check-label fw-bold" for="notifyTaskSwitch">Field Task Sign-Off Notices</label>
+                                        </div>
+                                        <p class="text-muted small mb-0 ms-4">Alert project supervisors and technical consultants when a specific task item is marked done.</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-8">
+                                    <label class="form-label fw-bold">Procurement & Audit Oversight Mailbox (BCC)</label>
+                                    <input type="email" name="audit_notification_email" class="form-control" 
+                                           value="{{ $notificationSettings->get('audit_notification_email')?->value ?? '' }}" 
+                                           placeholder="e.g. audit.projects@ncaa.gov.ng">
+                                    <div class="form-text">When configured, all project awards and milestone payment notices will BCC this oversight email.</div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-3 border-top text-end">
+                                <button type="submit" class="btn text-white px-4" style="background-color: #01054C;">
+                                    <i class="fas fa-save me-1"></i> Save Notification Settings
+                                </button>
+                            </div>
+                        </form>
                     </div>
 
                 </div>

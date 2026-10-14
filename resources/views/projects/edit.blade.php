@@ -251,13 +251,61 @@
                                 <p class="text-muted small">Review and adjust contract valuation, award dates, and milestones.</p>
 
                                 <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold" for="fiscal_year">Fiscal / Budget Year</label>
+                                        <select class="form-select" id="fiscal_year" name="fiscal_year_id">
+                                            <option value="">-- Choose Fiscal Year --</option>
+                                            @if(isset($fiscal_years))
+                                                @foreach ($fiscal_years as $fy)
+                                                    <option value="{{ $fy->id }}"
+                                                        {{ (old('fiscal_year_id', $project->fiscal_year_id) == $fy->id) ? 'selected' : '' }}>
+                                                        {{ $fy->year }} {{ $fy->description ? "({$fy->description})" : '' }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        @error('fiscal_year_id')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold" for="funding_source">Funding Source</label>
+                                        <select class="form-select" id="funding_source" name="funding_source_id">
+                                            <option value="">-- Choose Funding Source --</option>
+                                            @if(isset($funding_sources))
+                                                @foreach ($funding_sources as $fs)
+                                                    <option value="{{ $fs->id }}"
+                                                        {{ (old('funding_source_id', $project->funding_source_id) == $fs->id) ? 'selected' : '' }}>
+                                                        {{ $fs->name }} {{ $fs->code ? "({$fs->code})" : '' }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        @error('funding_source_id')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold" for="budget_code">Budget Code / Subhead</label>
+                                        <input type="text" class="form-control" id="budget_code" name="budget_code" 
+                                               placeholder="e.g. NCAA-CAP-2025-0842" value="{{ old('budget_code', $project->budget_code) }}" />
+                                        @error('budget_code')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
                                     <div class="col-md-6">
-                                        <label class="form-label fw-semibold" for="Projectcost">Contract Cost (NGN)</label>
+                                        <label class="form-label fw-semibold" for="Projectcost">Contract Cost ({{ setting('currency_code', 'NGN') }}) <span class="text-danger">*</span></label>
                                         <div class="input-group">
-                                            <span class="input-group-text bg-light text-muted fw-bold">₦</span>
+                                            <span class="input-group-text bg-light text-muted fw-bold">{{ setting('currency_symbol', '₦') }}</span>
                                             <input id="Projectcost" name="cost" type="number" step="0.01" placeholder="0.00"
-                                                class="form-control" value="{{ old('cost', $project->cost) }}" />
+                                                class="form-control" value="{{ old('cost', $project->cost) }}" required />
                                         </div>
+                                        @error('cost')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
                                     </div>
 
                                     <div class="col-md-6">

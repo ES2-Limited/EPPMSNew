@@ -61,3 +61,4 @@ class FirmTypeController extends Controller
             ->with('success', 'Firm classification deleted successfully!');
     }
 }
+

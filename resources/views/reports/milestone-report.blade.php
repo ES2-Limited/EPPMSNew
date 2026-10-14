@@ -41,27 +41,32 @@
             </span>
         </div>
 
-        <img src="{{ asset('/assets/images/logos/ncaalogo.png') }}" alt="Logo" class="company-logo">
-        <h3 class="mt-3">Nigerian Civil Aviation Authority HQ, Abuja</h3>
-        <p class="lead">Project Milestone Completion/Interim Payment Certificate (IPC)</p>
+        <img src="{{ setting_asset('app_logo', 'assets/images/logos/ncaalogo.png') }}" alt="Logo" class="company-logo">
+        <h3 class="mt-3 fw-bold">{{ setting('organization_name', 'Nigerian Civil Aviation Authority HQ, Abuja') }}</h3>
+        <p class="lead fw-semibold text-primary">{{ setting('ipc_certificate_title', 'Project Milestone Completion/Interim Payment Certificate (IPC)') }}</p>
     </div>
 
     <div class="container">
         <div>
-            <h5 class="my-4">Milestones Details</h5>
-            <div class="row">
-                <div class="col-md-6 mb-2">
+            <h5 class="my-4 fw-bold border-bottom pb-2">Milestone & Interim Payment Details</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
                     <p><strong>Milestone Name:</strong> {{ $milestone->name }}</p>
                     <p><strong>Project Name:</strong> {{ $milestone->project?->name }}</p>
-                    <p><strong>Project Cost:</strong> ₦{{ number_format($milestone->project?->cost, 2) }}</p>
-                    <p><strong>Project Progress:</strong> {{ $milestone->project?->get_progress() }}%</p>
+                    <p><strong>Project Total Cost:</strong> {{ format_currency($milestone->project?->cost) }}</p>
+                    <p><strong>Overall Project Progress:</strong> {{ $milestone->project?->get_progress() }}%</p>
                 </div>
-                <div class="col-md-6 mb-2">
-                    <p><strong>Milestone Amount:</strong> ₦{{ number_format($milestone->amount, 2) }}</p>
-                    <p><strong>Description:</strong> {{ $milestone->description }}</p>
-                    <p><strong>Created:</strong> {{ $milestone->created_at->format('Y-m-d H:i:s') }}</p>
+                <div class="col-md-6">
+                    <p><strong>Milestone Certified Value:</strong> <span class="fs-5 fw-bold text-success">{{ format_currency($milestone->amount) }}</span></p>
+                    <p><strong>Milestone Status:</strong> {!! status_badge($milestone->status) !!}</p>
+                    <p><strong>Created:</strong> {{ $milestone->created_at->format('Y-m-d') }}</p>
                 </div>
             </div>
+            @if($milestone->description)
+                <div class="mt-2">
+                    <p><strong>Milestone Scope Description:</strong> <span class="text-muted">{{ $milestone->description }}</span></p>
+                </div>
+            @endif
         </div>
 
         <div>
@@ -79,14 +84,14 @@
                     <tbody>
                         @forelse ($milestone->tasks as $task)
                             <tr>
-                                <td>{{ $task->name }}</td>
-                                <td>{{ $task->cost }}</td>
+                                <td class="fw-semibold">{{ $task->name }}</td>
+                                <td>{{ format_currency($task->cost) }}</td>
                                 <td>{{ $task->start_date }}</td>
-                                <td>{{ Str::ucfirst($task->status?->value) }}</td>
+                                <td>{!! status_badge($task->status) !!}</td>
                             </tr>
                         @empty
-                            <tr colspan="4">
-                                No milestone tasks added!!!
+                            <tr>
+                                <td colspan="4" class="text-center py-3 text-muted">No milestone tasks registered.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -104,44 +109,39 @@
             </div>
 
         </div>
-        <div>
-            <h5>Authorizations</h5>
-            @forelse ($milestone->project?->project_personnel as $project_personnel)
-                @php
-                    $personnel = $project_personnel->personnel?->user;
-                @endphp
-                <div class="p-3 rounded mt-2">
-                    <p><strong>Name:</strong>
-                        {{ $personnel->name ?? $personnel->first_name . ' ' . $personnel->last_name }}
-                    </p>
 
-                    <p><strong>Designation:</strong>
-                        {{ $personnel->hasRole('personnel') ? 'Organization Personnel' : 'User' }}
-                    </p>
+        <div class="row mt-4 pt-3 border-top g-4">
+            <div class="col-md-6">
+                <h6 class="fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px;">Supervising Team & Personnel:</h6>
+                @forelse ($milestone->project?->project_personnel as $project_personnel)
+                    @php
+                        $personnel = $project_personnel->personnel?->user;
+                    @endphp
+                    <div class="p-2 border rounded bg-light mb-2">
+                        <p class="mb-0 fw-bold">{{ $personnel->name ?? $personnel->first_name . ' ' . $personnel->last_name }}</p>
+                        <p class="mb-0 small text-muted">{{ $project_personnel->personnel?->designation ?? 'Field Inspector' }} &bull; {{ $project_personnel->created_at->format('Y-m-d') }}</p>
+                    </div>
+                @empty
+                    <p class="text-muted small">No assigned project personnel recorded.</p>
+                @endforelse
+            </div>
 
-                    <p><strong>Date Assigned:</strong>
-                        {{ $project_personnel->created_at->format('Y-m-d H:i:s') }}
-                    </p>
-                </div>
-            @empty
-                <p>No project Personnel</p>
-            @endforelse
-        </div>
-
-        <div class="p-3 rounded">
-            <h6 class="text-secondary mb-3">Approved By</h6>
-
-            <p><strong>Project Director Name:</strong> {{ $milestone->project?->creator?->name }}</p>
-
-            <p><strong>Designation:</strong>
-                {{ $milestone->project?->creator->hasRole('admin') ? 'Admin' : 'User' }}
-            </p>
-
-            {{-- <p><strong>Signature:</strong> [Insert signature]</p> --}}
-
-            <p><strong>Approval Date:</strong>
-                {{ $milestone->project?->updated_at->format('Y-m-d H:i:s') }}
-            </p>
+            <div class="col-md-6">
+                <h6 class="fw-bold text-uppercase text-muted" style="letter-spacing: 0.5px;">Authorized Executive Approval:</h6>
+                @if(isset($signatory) && $signatory)
+                    @if($signatory->signature && file_exists(public_path('storage/signature_files/' . $signatory->signature)))
+                        <img src="{{ asset('storage/signature_files/' . $signatory->signature) }}" alt="Signature" style="max-height: 60px; display: block; margin-bottom: 5px;">
+                    @else
+                        <div style="border-bottom: 1.5px solid #333; width: 220px; margin-bottom: 8px;"></div>
+                    @endif
+                    <p class="mb-0 fw-bold fs-6">{{ $signatory->name }}</p>
+                    <p class="text-muted small mb-0">{{ $signatory->description ?? 'Authorized Executive' }} &bull; <i>{{ now()->format(setting('date_format', 'F j, Y')) }}</i></p>
+                @else
+                    <div style="border-bottom: 1.5px solid #333; width: 220px; margin-bottom: 8px;"></div>
+                    <p class="mb-0 fw-bold">{{ setting('organization_name', 'Director-General / CEO') }}</p>
+                    <p class="text-muted small mb-0">Official Clearance &bull; <i>{{ now()->format('F j, Y') }}</i></p>
+                @endif
+            </div>
         </div>
     </div>
 

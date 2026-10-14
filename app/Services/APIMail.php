@@ -27,11 +27,19 @@ class APIMail
 
     public function sendProjectMail($project)
     {
+        if (!setting('notify_project_award', true)) {
+            return;
+        }
+
         try {
-
             $project->contractor?->user?->notify(new AddedToProjectNotification($project, 'Contractor'));
-
             $project->consultant?->user?->notify(new AddedToProjectNotification($project, 'Consultant'));
+
+            $auditEmail = setting('audit_notification_email');
+            if ($auditEmail && filter_var($auditEmail, FILTER_VALIDATE_EMAIL)) {
+                \Illuminate\Support\Facades\Notification::route('mail', $auditEmail)
+                    ->notify(new AddedToProjectNotification($project, 'Procurement/Audit Oversight'));
+            }
         } catch (\Throwable $e) {
             Log::error("Project Email sending failed", ['message' => $e->getMessage()]);
         }

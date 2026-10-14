@@ -36,8 +36,21 @@ class Project extends Model
         'award_letter',
         'created_by_id',
         'project_type_id',
-        'priority'
+        'priority',
+        'fiscal_year_id',
+        'funding_source_id',
+        'budget_code'
     ];
+
+    public function fiscal_year()
+    {
+        return $this->belongsTo(FiscalYear::class);
+    }
+
+    public function funding_source()
+    {
+        return $this->belongsTo(FundingSource::class);
+    }
 
     public function directorate()
     {

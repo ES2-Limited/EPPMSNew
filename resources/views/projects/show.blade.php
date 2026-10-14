@@ -315,6 +315,24 @@
                                 <span class="text-muted"><i class="fas fa-user-check me-2 text-success"></i> Contractor Firm</span>
                                 <span class="fw-semibold text-dark">{{ $project->contractor?->user?->name ?? 'Unassigned' }}</span>
                             </div>
+                            @if($project->fiscal_year)
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <span class="text-muted"><i class="fas fa-calendar-alt me-2 text-primary"></i> Fiscal Year</span>
+                                <span class="fw-semibold text-dark">{{ $project->fiscal_year->year }}</span>
+                            </div>
+                            @endif
+                            @if($project->funding_source)
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <span class="text-muted"><i class="fas fa-money-bill-wave me-2 text-success"></i> Funding Source</span>
+                                <span class="fw-semibold text-dark">{{ $project->funding_source->name }}</span>
+                            </div>
+                            @endif
+                            @if($project->budget_code)
+                            <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                <span class="text-muted"><i class="fas fa-barcode me-2 text-secondary"></i> Budget Code</span>
+                                <span class="fw-semibold font-monospace text-dark">{{ $project->budget_code }}</span>
+                            </div>
+                            @endif
                             <div class="list-group-item d-flex justify-content-between align-items-center py-3">
                                 <span class="text-muted"><i class="fas fa-hourglass-half me-2 text-warning"></i> Duration</span>
                                 <span class="fw-semibold text-dark">{{ $project->duration }} {{ $project->duration_period }}</span>

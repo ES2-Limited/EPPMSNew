@@ -14,6 +14,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfficeController;
 use App\Http\Controllers\OfficeTypeController;
 use App\Http\Controllers\ProjectTypeController;
+use App\Http\Controllers\FiscalYearController;
+use App\Http\Controllers\FundingSourceController;
 use App\Http\Controllers\FirmTypeController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PersonnelController;
@@ -193,6 +195,14 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/firm-types', [FirmTypeController::class, 'store'])->name('firm-types.store');
             Route::put('/firm-types/{id}', [FirmTypeController::class, 'update'])->name('firm-types.update');
             Route::delete('/firm-types/{id}', [FirmTypeController::class, 'destroy'])->name('firm-types.destroy');
+
+            Route::post('/fiscal-years', [FiscalYearController::class, 'store'])->name('fiscal-years.store');
+            Route::put('/fiscal-years/{id}', [FiscalYearController::class, 'update'])->name('fiscal-years.update');
+            Route::delete('/fiscal-years/{id}', [FiscalYearController::class, 'destroy'])->name('fiscal-years.destroy');
+
+            Route::post('/funding-sources', [FundingSourceController::class, 'store'])->name('funding-sources.store');
+            Route::put('/funding-sources/{id}', [FundingSourceController::class, 'update'])->name('funding-sources.update');
+            Route::delete('/funding-sources/{id}', [FundingSourceController::class, 'destroy'])->name('funding-sources.destroy');
         });
     });
 

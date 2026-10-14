@@ -12,6 +12,8 @@ use App\Models\Office;
 use App\Models\Personnel;
 use App\Models\ProjectChat;
 use App\Models\ProjectType;
+use App\Models\FiscalYear;
+use App\Models\FundingSource;
 use App\Models\State;
 use App\Models\TaskImage;
 use App\Services\APIMail;
@@ -94,8 +96,10 @@ class ProjectController extends Controller
         $states = State::select('id', 'name')->get();
         $roles = Role::select('id', 'name')->get();
         $project_types = ProjectType::select('id', 'name')->get();
+        $fiscal_years = FiscalYear::where('is_active', true)->orderBy('year', 'desc')->get();
+        $funding_sources = FundingSource::where('is_active', true)->orderBy('name')->get();
 
-        return view('projects.create', compact('contractors', 'directorates', 'states', 'personnels', 'roles', 'offices', 'project_types', 'consultants'));
+        return view('projects.create', compact('contractors', 'directorates', 'states', 'personnels', 'roles', 'offices', 'project_types', 'consultants', 'fiscal_years', 'funding_sources'));
     }
 
     /**
@@ -178,7 +182,9 @@ class ProjectController extends Controller
         $states = State::select('id', 'name')->get();
         $roles = Role::select('id', 'name')->get();
         $project_types = ProjectType::select('id', 'name')->orderBy('name')->get();
-        return view('projects.edit', compact('project', 'directorates', 'contractors', 'offices', 'departments', 'units', 'consultants', 'project_types'));
+        $fiscal_years = FiscalYear::orderBy('year', 'desc')->get();
+        $funding_sources = FundingSource::orderBy('name')->get();
+        return view('projects.edit', compact('project', 'directorates', 'contractors', 'offices', 'departments', 'units', 'consultants', 'project_types', 'fiscal_years', 'funding_sources'));
     }
 
     /**
