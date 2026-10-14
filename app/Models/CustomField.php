@@ -38,3 +38,4 @@ class CustomField extends Model
         return array_map('trim', explode(',', $this->options));
     }
 }
+

@@ -93,3 +93,4 @@ class CustomFieldController extends Controller
             ->with('success', "Custom field '{$name}' deleted successfully!");
     }
 }
+
