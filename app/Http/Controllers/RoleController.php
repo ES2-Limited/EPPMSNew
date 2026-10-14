@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\RoleAndPermissions;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class RoleController extends Controller
 {
@@ -14,22 +16,20 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $roles = Role::with('permissions:id,name')->where('name', '!=', 'ADMIN')->select('id', 'name', 'created_at')->paginate(10);
-        $permissions = Permission::select('id', 'name')->get();
-        return view('roles.index', ['roles' => $roles, 'permissions' => $permissions]);
+        $roles = Role::with('permissions:id,name')
+            ->select('id', 'name', 'created_at')
+            ->paginate(15);
+
+        return view('roles.index', compact('roles'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new role with permissions.
      */
     public function create()
     {
-        $data = [
-            "roles" => Role::with('permissions:id,name')->where('name', '!=', 'ADMIN')->select('id', 'name')->get(),
-            "permissions" => Permission::select('id', 'name')->get()
-        ];
-
-        return view('roles.create', $data);
+        $modules = RoleAndPermissions::PERMISSION_MODULES;
+        return view('roles.create', compact('modules'));
     }
 
     /**
@@ -37,13 +37,24 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        $role = $request->only('name');
-        $role = Role::create($role)->givePermissionTo($request->only('permissions'));
+        $request->validate([
+            'name' => 'required|string|unique:roles,name|max:100',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'string',
+        ]);
 
-        if ($role) {
-            return redirect()->route('roles.index')->with('success', 'Role created successfully');
+        $role = Role::create([
+            'name' => strtolower(trim($request->name)),
+            'guard_name' => 'web',
+        ]);
+
+        if ($request->filled('permissions')) {
+            $role->syncPermissions($request->permissions);
         }
-        return redirect()->route('roles.create')->withInput()->with('error', 'Role creation failed');
+
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        return redirect()->route('roles.index')->with('success', 'Role created with permissions successfully.');
     }
 
     /**
@@ -51,35 +62,46 @@ class RoleController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return redirect()->route('roles.edit', $id);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified role and its permission matrix.
      */
     public function edit(string $id)
     {
-        $role = Role::where('id', $id)->select('id', 'name')->firstOrFail();
-        return  view('roles.edit', compact('role'));
+        $role = Role::with('permissions')->findOrFail($id);
+        $modules = RoleAndPermissions::PERMISSION_MODULES;
+        $rolePermissions = $role->permissions->pluck('name')->toArray();
+
+        return view('roles.edit', compact('role', 'modules', 'rolePermissions'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified role name and permissions.
      */
     public function update(Request $request, string $id)
     {
         $role = Role::findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|unique:roles,name,'.$role->id,
-            'permissions' => 'nullable|array'
+            'name' => 'required|string|max:100|unique:roles,name,' . $role->id,
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'string',
         ]);
 
-        $role->name = $request->name;
-        $role->save();
+        if (strtolower($role->name) !== 'admin') {
+            $role->name = strtolower(trim($request->name));
+            $role->save();
+        }
 
+        // Sync selected permissions
+        $permissions = $request->input('permissions', []);
+        $role->syncPermissions($permissions);
 
-        return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        return redirect()->route('roles.index')->with('success', 'Role and permissions updated successfully.');
     }
 
     /**
@@ -87,18 +109,18 @@ class RoleController extends Controller
      */
     public function destroy(string $id)
     {
-        $role = Role::where('id', $id)->select('id', 'name')->firstOrFail();
+        $role = Role::findOrFail($id);
 
-        if (User::role($role->name)->exists()) {
-            return redirect()->back()->with('error', 'Cannot delete role. It is assigned to one or more users.');
+        if (strtolower($role->name) === 'admin') {
+            return redirect()->back()->with('error', 'The Super Admin role cannot be deleted.');
         }
 
-        $usersWithRole = User::role($role->name)->get();
-        foreach ($usersWithRole as $user) {
-            $user->removeRole($role->name);
+        if (User::role($role->name)->exists()) {
+            return redirect()->back()->with('error', 'Cannot delete role: it is currently assigned to one or more active users.');
         }
 
         $role->delete();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');
     }

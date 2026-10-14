@@ -73,7 +73,7 @@
                             </a>
                         </li>
 
-                        @hasanyrole('admin|personnel|directorate_admin|head_of_department|organization_admin')
+                        @canany(['view-organizations', 'view-directorates', 'view-departments', 'view-units', 'view-offices', 'view-personnels'])
                             <li class="sidebar-item">
 
                                 <a class="sidebar-link has-arrow" href="#" aria-expanded="false">
@@ -81,86 +81,96 @@
                                 </a>
 
                                 <ul aria-expanded="false" class="collapse first-level">
-                                    @role('admin')
+                                    @can('manage-organizations')
                                         <li class="sidebar-item">
                                             <a class="sidebar-link" href="{{ route('organizations.create') }}">
                                                 <span class="icon-small"></span>
                                                 <span class="hide-menu">Organization Registration</span>
                                             </a>
                                         </li>
+                                    @endcan
 
+                                    @can('view-offices')
                                         <li class="sidebar-item">
                                             <a class="sidebar-link" href="{{ route('offices.index') }}">
                                                 <span class="icon-small"></span>
                                                 <span class="hide-menu">Office Location</span>
                                             </a>
                                         </li>
+                                    @endcan
 
+                                    @can('view-directorates')
                                         <li class="sidebar-item">
                                             <a class="sidebar-link" href="{{ route('directorates.index') }}">
                                                 <span class="icon-small"></span>
                                                 <span class="hide-menu">Directorates</span>
                                             </a>
                                         </li>
-                                    @endrole
+                                    @endcan
 
-                                    @hasanyrole('admin|personnel|directorate_admin|organization_admin')
+                                    @can('view-departments')
                                         <li class="sidebar-item">
                                             <a class="sidebar-link" href="{{ route('departments.index') }}">
                                                 <span class="icon-small"></span>
                                                 <span class="hide-menu">Department</span>
                                             </a>
                                         </li>
+                                    @endcan
+
+                                    @can('view-units')
                                         <li class="sidebar-item">
                                             <a class="sidebar-link" href="{{ route('units.index') }}">
                                                 <span class="icon-small"></span>
                                                 <span class="hide-menu">Unit</span>
                                             </a>
                                         </li>
-                                    @endrole
+                                    @endcan
 
-                                    <li class="sidebar-item">
-                                        <a class="sidebar-link" href="{{ route('personnels.index') }}">
-                                            <span class="icon-small"></span>
-                                            <span class="hide-menu">Personnels</span>
-                                        </a>
-                                    </li>
+                                    @can('view-personnels')
+                                        <li class="sidebar-item">
+                                            <a class="sidebar-link" href="{{ route('personnels.index') }}">
+                                                <span class="icon-small"></span>
+                                                <span class="hide-menu">Personnels</span>
+                                            </a>
+                                        </li>
+                                    @endcan
                                 </ul>
                             </li>
-                        @endrole
+                        @endcanany
 
 
 
-                        <!-- Contractor -->
-                        @hasanyrole('admin|personnel|contractor')
+                        <!-- Contractor / Firms -->
+                        @canany(['view-contractors', 'manage-contractor-personnels'])
                             <li class="sidebar-item">
                                 <a class="sidebar-link has-arrow" href="#" aria-expanded="false">
                                     <span class="hide-menu">Firm</span>
                                 </a>
                                 <ul aria-expanded="false" class="collapse first-level">
-                                    @hasanyrole('admin|personnel')
+                                    @can('view-contractors')
                                         <li class="sidebar-item">
                                             <a class="sidebar-link" href="{{ route('contractors.index') }}">
                                                 <span class="icon-small"></span>
                                                 <span class="hide-menu">Firms</span>
                                             </a>
                                         </li>
-                                    @endrole
+                                    @endcan
 
-                                    @role('contractor|consultant|admin')
+                                    @can('manage-contractor-personnels')
                                         <li class="sidebar-item">
                                             <a class="sidebar-link" href="{{ route('contractor-personnels.index') }}">
                                                 <span class="icon-small"></span>
                                                 <span class="hide-menu">Contractor Personnel</span>
                                             </a>
                                         </li>
-                                    @endrole
+                                    @endcan
 
                                 </ul>
                             </li>
-                        @endrole
+                        @endcanany
 
                         <!-- Project -->
+                        @can('view-projects')
                         <li class="sidebar-item">
                             <a class="sidebar-link has-arrow" href="#" aria-expanded="false">
                                 <span class="hide-menu">Project</span>
@@ -172,68 +182,70 @@
                                         <span class="hide-menu">Projects</span>
                                     </a>
                                 </li>
-                                @hasanyrole('admin|personnel')
+                                @can('create-project')
                                     <li class="sidebar-item">
                                         <a class="sidebar-link" href="{{ route('projects.create') }}">
                                             <span class="icon-small"></span>
                                             <span class="hide-menu">Add New Project</span>
                                         </a>
                                     </li>
-                                @endrole
+                                @endcan
                             </ul>
                         </li>
+                        @endcan
                         <!-- End of Project -->
 
-                        @hasanyrole('admin')
-
+                        <!-- System & Settings -->
+                        @canany(['view-roles', 'view-users', 'view-settings'])
                             <li class="sidebar-item">
                                 <a class="sidebar-link has-arrow" href="#" aria-expanded="false">
                                     <span class="hide-menu">Settings</span>
                                 </a>
                                 <ul aria-expanded="false" class="collapse first-level">
-                                    <li class="sidebar-item">
-                                        <a class="sidebar-link" href="{{ route('roles.index') }}">
-                                            <span class="icon-small"></span>
-                                            <span class="hide-menu">Roles</span>
-                                        </a>
-                                    </li>
-                                    <li class="sidebar-item">
-                                        <a class="sidebar-link" href="{{ route('roles.create') }}">
-                                            <span class="icon-small"></span>
-                                            <span class="hide-menu">Create Role</span>
-                                        </a>
-                                    </li>
+                                    @can('view-roles')
+                                        <li class="sidebar-item">
+                                            <a class="sidebar-link" href="{{ route('roles.index') }}">
+                                                <span class="icon-small"></span>
+                                                <span class="hide-menu">Roles & Permissions</span>
+                                            </a>
+                                        </li>
+                                    @endcan
 
-                                    <li class="sidebar-item">
-                                        <a class="sidebar-link has-arrow" href="#" aria-expanded="false">
-                                            <span class="hide-menu">Users</span>
-                                        </a>
-                                        <ul aria-expanded="false" class="collapse second-level">
-                                            <li class="sidebar-item">
-                                                <a class="sidebar-link" href="{{ route('admin.users.index') }}">
-                                                    <span class="icon-small"></span>
-                                                    <span class="hide-menu">Users</span>
-                                                </a>
-                                            </li>
-                                            <li class="sidebar-item">
-                                                <a class="sidebar-link" href="{{ route('admin.users.create') }}">
-                                                    <span class="icon-small"></span>
-                                                    <span class="hide-menu">Create User</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </li>
+                                    @can('view-users')
+                                        <li class="sidebar-item">
+                                            <a class="sidebar-link has-arrow" href="#" aria-expanded="false">
+                                                <span class="hide-menu">Users</span>
+                                            </a>
+                                            <ul aria-expanded="false" class="collapse second-level">
+                                                <li class="sidebar-item">
+                                                    <a class="sidebar-link" href="{{ route('admin.users.index') }}">
+                                                        <span class="icon-small"></span>
+                                                        <span class="hide-menu">Users List</span>
+                                                    </a>
+                                                </li>
+                                                @can('create-user')
+                                                    <li class="sidebar-item">
+                                                        <a class="sidebar-link" href="{{ route('admin.users.create') }}">
+                                                            <span class="icon-small"></span>
+                                                            <span class="hide-menu">Create User</span>
+                                                        </a>
+                                                    </li>
+                                                @endcan
+                                            </ul>
+                                        </li>
+                                    @endcan
 
-                                    <li class="sidebar-item">
-                                        <a class="sidebar-link" href="{{ route('settings.index') }}"
-                                            aria-expanded="false">
-                                            <span class="hide-menu">Settings</span>
-                                        </a>
-                                    </li>
+                                    @can('view-settings')
+                                        <li class="sidebar-item">
+                                            <a class="sidebar-link" href="{{ route('settings.index') }}"
+                                                aria-expanded="false">
+                                                <span class="hide-menu">System Settings</span>
+                                            </a>
+                                        </li>
+                                    @endcan
                                 </ul>
                             </li>
-
-                        @endrole
+                        @endcanany
 
                         <li>
                             <span class="sidebar-divider lg"></span>

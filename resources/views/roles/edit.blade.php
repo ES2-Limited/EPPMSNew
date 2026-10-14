@@ -1,82 +1,164 @@
 @extends('layouts.admin')
+
 @section('content')
-    <div class="body-wrapper">
-        <div class="container-fluid">
+<div class="body-wrapper">
+    <div class="container-fluid py-4">
 
-            <div class="d-flex align-items-center mb-3">
-                <a href="{{ route('roles.index') }}" class="text-decoration-none me-3">
-                    <iconify-icon icon="solar:alt-arrow-left-bold" class="fs-2"></iconify-icon>
-                    <span>Back</span>
+        <!-- Header -->
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-4">
+            <div>
+                <a href="{{ route('roles.index') }}" class="btn btn-sm btn-outline-secondary mb-2">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Roles
                 </a>
-            </div>
-
-            <div class="d-flex align-items-center gap-6 mb-6 pb-3 justify-content-between">
-                <div>
-                    <h6 class="mb-0 fs-4">Edit  {{ $role->name }} Role</h6>
-                </div>
-            </div>
-
-            <div class="col-lg-10">
-                <div class="card">
-                    @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
-                    @if (session('error'))
-                        <div class="alert alert-danger">
-                            {{ session('error') }}
-                        </div>
-                    @endif
-
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-                    <form method="POST" action="{{ route('roles.update', $role->id) }}" id="roles"
-                        onsubmit="this.querySelector('#submit-button').disabled = true; this.querySelector('#submit-button').innerText = 'Saving...';">
-                        @csrf
-                        @method('PUT')
-                        <div class="">
-                            <div class="card-body">
-                                <h4 class="card-title">Create Personel Roles</h4>
-                                <div class="row pt-3">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Role Name</label>
-                                            <input type="text" id="roleName" class="form-control"
-                                                placeholder="Role Name" name="name"
-                                                value="{{ old('name', $role->name) }}" required />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-actions">
-                                <div class="card-body border-top">
-                                    <button type="submit" class="btn btn-primary" name="createRole" id="submit-button">
-                                        Save </button>
-                                    <button type="reset" class="btn bg-danger-subtle text-danger ms-6"> Cancel </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                <h3 class="fw-bold mb-1" style="color: #01054C;">Edit Role: {{ ucwords(str_replace('_', ' ', $role->name)) }}</h3>
+                <p class="text-muted mb-0">Configure granular permission access across system modules for this role.</p>
             </div>
         </div>
-    </div>
+
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+                <ul class="mb-0 ps-3">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('roles.update', $role->id) }}">
+            @csrf
+            @method('PUT')
+
+            <!-- Role Details Card -->
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Role Identifier <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" 
+                                   value="{{ old('name', $role->name) }}" 
+                                   {{ strtolower($role->name) === 'admin' ? 'readonly' : '' }} required>
+                            @if(strtolower($role->name) === 'admin')
+                                <div class="form-text text-primary"><i class="fas fa-lock me-1"></i> Super Admin role name is protected and cannot be altered.</div>
+                            @else
+                                <div class="form-text">System-level role name (e.g. project_manager, auditor, directorate_admin).</div>
+                            @endif
+                        </div>
+                        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                            <button type="button" class="btn btn-outline-primary btn-sm me-2" id="selectAllBtn">
+                                <i class="fas fa-check-double me-1"></i> Select All Permissions
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="deselectAllBtn">
+                                <i class="fas fa-times me-1"></i> Deselect All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permission Modules Grid -->
+            <div class="row g-4">
+                @foreach ($modules as $moduleName => $permissions)
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow-sm rounded-3 h-100">
+                            <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="fw-bold mb-0 text-dark">
+                                    <i class="fas fa-layer-group text-primary me-2"></i> {{ $moduleName }}
+                                </h6>
+                                <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none module-toggle-btn" 
+                                        data-module="{{ Str::slug($moduleName) }}">
+                                    Toggle All
+                                </button>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="d-flex flex-column gap-3">
+                                    @foreach ($permissions as $permKey => $permLabel)
+                                        <div class="form-check form-switch p-2 rounded hover-bg d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <label class="form-check-label fw-semibold text-dark mb-0 cursor-pointer" for="perm-{{ $permKey }}">
+                                                    {{ $permLabel }}
+                                                </label>
+                                                <div class="text-muted small"><code>{{ $permKey }}</code></div>
+                                            </div>
+                                            <input class="form-check-input ms-3 perm-checkbox module-{{ Str::slug($moduleName) }}" 
+                                                   type="checkbox" 
+                                                   name="permissions[]" 
+                                                   value="{{ $permKey }}" 
+                                                   id="perm-{{ $permKey }}"
+                                                   {{ in_array($permKey, $rolePermissions) ? 'checked' : '' }}>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Bottom Action Bar -->
+            <div class="card border-0 shadow-sm rounded-3 mt-4">
+                <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                    <a href="{{ route('roles.index') }}" class="btn btn-outline-secondary px-4">Cancel</a>
+                    <button type="submit" class="btn text-white px-5 py-2" style="background-color: #01054C;">
+                        <i class="fas fa-save me-1"></i> Save Permissions Matrix
+                    </button>
+                </div>
+            </div>
+        </form>
 
     </div>
-    </div>
-    </div>
+</div>
 
-    @include('custom.customizer')
-    </div>
-    </div>
+<style>
+.cursor-pointer { cursor: pointer; }
+.hover-bg:hover { background-color: #f8f9fa; }
+.form-check-input:checked {
+    background-color: #01054C;
+    border-color: #01054C;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const deselectAllBtn = document.getElementById('deselectAllBtn');
+    const allCheckboxes = document.querySelectorAll('.perm-checkbox');
+
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function () {
+            allCheckboxes.forEach(cb => cb.checked = true);
+        });
+    }
+
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener('click', function () {
+            allCheckboxes.forEach(cb => cb.checked = false);
+        });
+    }
+
+    document.querySelectorAll('.module-toggle-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const moduleSlug = this.getAttribute('data-module');
+            const moduleCheckboxes = document.querySelectorAll('.module-' + moduleSlug);
+            const allChecked = Array.from(moduleCheckboxes).every(cb => cb.checked);
+            moduleCheckboxes.forEach(cb => cb.checked = !allChecked);
+        });
+    });
+});
+</script>
 @endsection

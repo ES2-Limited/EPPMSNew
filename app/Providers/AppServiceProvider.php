@@ -32,5 +32,10 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Model::preventLazyLoading(! app()->isProduction());
+
+        // Super-admin bypass: 'admin' role inherently has all permissions
+        \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
+            return $user->hasRole('admin') ? true : null;
+        });
     }
 }
