@@ -10,12 +10,12 @@
                             <div class="col-12 auth-card">
                                 <div class="mb-4">
                                     <a href="/" class="text-nowrap logo-img d-inline-block">
-                                        <img src="{{ asset('/assets/images/logos/ncaa-icon.png') }}" class="dark-logo"
+                                        <img src="{{ setting_asset('app_icon', 'assets/images/logos/ncaa-icon.png') }}" class="dark-logo"
                                             alt="Logo-Dark" style="height: 50px; width: auto;" />
                                     </a>
                                 </div>
-                                <h3 class="mb-2 fs-6 fw-bold text-dark">Sign in to EPPMS</h3>
-                                <p class="text-muted small mb-4">Enterprise Project & Portfolio Management System</p>
+                                <h3 class="mb-2 fs-6 fw-bold text-dark">Sign in to {{ setting('app_short_name', 'EPPMS') }}</h3>
+                                <p class="text-muted small mb-4">{{ setting('app_name', 'Enterprise Project & Portfolio Management System') }}</p>
 
                                 @if ($errors->any())
                                     <div class="alert alert-danger border-0 rounded-3 shadow-sm py-2">
@@ -31,7 +31,7 @@
                                     <div class="mb-3">
                                         <label for="email" class="form-label fw-semibold text-dark">{{ __('Email Address') }}</label>
                                         <input type="email" id="email"
-                                            placeholder="name@ncaa.gov.ng"
+                                            placeholder="user@example.com"
                                             class="form-control form-control-lg @error('email') is-invalid @enderror" name="email"
                                             value="{{ old('email') }}" required autocomplete="email" autofocus />
                                         @error('email')
@@ -72,17 +72,19 @@
                         <div class="d-lg-flex align-items-center z-index-5 position-relative h-n80">
                             <div class="row justify-content-center w-100">
                                 <div class="col-lg-6">
-                                    <img src="{{ asset('/assets/images/logos/ncaalogo.png') }}" alt="Your Logo"
+                                    <img src="{{ setting_asset('app_logo', 'assets/images/logos/ncaalogo.png') }}" alt="Brand Logo"
                                         class="img-fluid mb-4" style="max-width: 80%; height: auto;">
                                     <h2 class="text-white fs-10 mb-3 lh-base">
                                         Welcome to
                                         <br />
-                                        EPPMS
+                                        {{ setting('app_short_name', 'EPPMS') }}
                                     </h2>
                                     <span class="opacity-75 fs-4 text-white d-block mb-3">
-                                        Electronic Project and Portfolio Management System
+                                        {{ setting('app_name', 'Enterprise Project and Portfolio Management System') }}
                                     </span>
-                                    <a href="#" class="btn btn-primary">Learn More</a>
+                                    <span class="badge bg-primary-subtle text-primary py-2 px-3 fw-semibold">
+                                        {{ setting('organization_name', 'Nigeria Civil Aviation Authority (NCAA)') }}
+                                    </span>
                                 </div>
                             </div>
                         </div>

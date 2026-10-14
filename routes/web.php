@@ -174,6 +174,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/report/project/{ulid}', [ReportController::class, 'print_project_report'])->name('project.report');
 
             Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+            Route::post('/settings/batch', [SettingController::class, 'updateBatch'])->name('settings.update.batch');
             Route::put('/settings/{id}', [SettingController::class, 'update'])->name('settings.update.single');
             Route::get('/settings/create', [SettingController::class, 'create'])->name('settings.create');
             Route::post('/settings', [SettingController::class, 'store'])->name('settings.store');

@@ -6,10 +6,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="shortcut icon" type="image/png" href="{{ asset('/assets/images/logos/favicon.png') }}" />
+    <link rel="shortcut icon" type="image/png" href="{{ setting_asset('app_icon', 'assets/images/logos/favicon.png') }}" />
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ setting('app_name', config('app.name', 'EPPMS')) }}</title>
     <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/eppms-modern.css') }}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -41,21 +41,22 @@
         <div class="toast-body hstack align-items-start gap-6">
             <i class="ti ti-alert-circle fs-6"></i>
             <div>
-                <h5 class="text-white fs-3 mb-1">Welcome to EPPMS</h5>
+                <h5 class="text-white fs-3 mb-1">Welcome to {{ setting('app_short_name', 'EPPMS') }}</h5>
             </div>
             <button type="button" class="btn-close btn-close-white fs-2 m-0 ms-auto shadow-none"
                 data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
     <div class="preloader">
-        <img src="{{ asset('assets/images/logos/favicon.png') }}" alt="loader" class="lds-ripple img-fluid" />
+        <img src="{{ setting_asset('app_icon', 'assets/images/logos/favicon.png') }}" alt="loader" class="lds-ripple img-fluid" />
     </div>
     <div id="main-wrapper">
         <aside class="left-sidebar with-vertical">
             <div>
                 <div class="brand-logo d-flex align-items-center px-3" style="background-color:#01054C;">
-                    <a href="/" class="text-nowrap logo-img">
-                        <img src="{{ asset('assets/images/logos/ncaa-icon.png') }}" alt="Logo" />
+                    <a href="/" class="text-nowrap logo-img d-flex align-items-center gap-2 text-decoration-none">
+                        <img src="{{ setting_asset('app_icon', 'assets/images/logos/ncaa-icon.png') }}" alt="Logo" style="max-height: 40px; max-width: 40px;" />
+                        <span class="fw-bold fs-5 text-white tracking-wide">{{ setting('app_short_name', 'EPPMS') }}</span>
                     </a>
                 </div>
 
@@ -281,7 +282,7 @@
                         </ul>
 
                         <div class="d-block d-lg-none py-9 py-xl-0">
-                            <img src="{{ asset('assets/images/logos/ncaa-icon.png') }}" alt="img" />
+                            <img src="{{ setting_asset('app_icon', 'assets/images/logos/ncaa-icon.png') }}" alt="img" style="max-height: 35px;" />
                         </div>
                         <a class="navbar-toggler p-0 border-0 nav-icon-hover-bg rounded-circle"
                             href="javascript:void(0)" data-bs-toggle="collapse" data-bs-target="#navbarNav"

@@ -7,11 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Favicon icon-->
-    <link rel="shortcut icon" type="image/png" href="{{ asset('/assets/images/logos/favicon.png') }}" />
+    <link rel="shortcut icon" type="image/png" href="{{ setting_asset('app_icon', 'assets/images/logos/favicon.png') }}" />
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ setting('app_name', config('app.name', 'EPPMS')) }}</title>
     <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/eppms-modern.css') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,7 +21,7 @@
 
 <body>
     <div class="preloader">
-        <img src="{{ asset('assets/images/logos/ncaalogo.png') }}" alt="loader" class="lds-ripple img-fluid" />
+        <img src="{{ setting_asset('app_logo', 'assets/images/logos/ncaalogo.png') }}" alt="loader" class="lds-ripple img-fluid" />
     </div>
     <main>
         @yield('content')

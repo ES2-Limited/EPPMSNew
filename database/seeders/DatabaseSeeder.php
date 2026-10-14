@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call(OfficeTypeSeeder::class);
         $this->call(RoleCategorySeeder::class);
         $this->call(RolesAndPermissionsSeeder::class);
+        $this->call(SettingSeeder::class);
 
         $admin = User::firstOrCreate(
             ['email' => 'dsd@eppms.com'],

@@ -9,6 +9,15 @@ class Setting extends Model
 {
     use HasUlid;
 
-    protected $fillable = ['key', 'name', 'signature', 'active'];
+    protected $fillable = [
+        'key',
+        'value',
+        'group',
+        'type',
+        'description',
+        'name',
+        'signature',
+        'active',
+    ];
 
 }
