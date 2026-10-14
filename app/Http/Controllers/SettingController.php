@@ -37,6 +37,18 @@ class SettingController extends Controller
         $certificateSettings = $allSettings->where('group', 'certificates')->keyBy('key');
         $notificationSettings = $allSettings->where('group', 'notifications')->keyBy('key');
 
+        $customFields = \App\Models\CustomField::orderBy('order')->orderBy('name')->get();
+        $diagnostics = [
+            'php_version' => PHP_VERSION,
+            'laravel_version' => app()->version(),
+            'db_driver' => config('database.default'),
+            'total_users' => \App\Models\User::count(),
+            'total_projects' => \App\Models\Project::count(),
+            'total_milestones' => \App\Models\Milestone::count(),
+            'total_audit_logs' => \App\Models\AuditLog::count(),
+            'public_storage_symlinked' => file_exists(public_path('storage')),
+        ];
+
         return view('settings.index', compact(
             'generalSettings',
             'brandingSettings',
@@ -50,7 +62,9 @@ class SettingController extends Controller
             'projectTypes',
             'firmTypes',
             'fiscalYears',
-            'fundingSources'
+            'fundingSources',
+            'customFields',
+            'diagnostics'
         ));
     }
 
@@ -224,5 +238,76 @@ class SettingController extends Controller
         SettingService::clearCache();
 
         return redirect()->route('settings.index', ['tab' => 'signatures'])->with('success', 'Signature profile updated!');
+    }
+
+    /**
+     * Export all projects to CSV.
+     */
+    public function exportProjectsCsv()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="ncaa_projects_' . now()->format('Ymd_His') . '.csv"',
+        ];
+
+        return response()->stream(function () {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['ULID', 'Project Name', 'Contractor', 'Project Type', 'Cost', 'Status', 'Priority', 'Fiscal Year', 'Funding Source', 'Budget Code', 'Office Location', 'Award Date', 'Created At']);
+
+            \App\Models\Project::with(['contractor.user', 'project_type', 'fiscal_year', 'funding_source', 'office'])
+                ->chunk(200, function ($projects) use ($handle) {
+                    foreach ($projects as $project) {
+                        fputcsv($handle, [
+                            $project->ulid,
+                            $project->name,
+                            $project->contractor?->user?->name ?? 'Unassigned',
+                            $project->project_type?->name ?? 'N/A',
+                            $project->cost,
+                            $project->status?->value ?? (string)$project->status,
+                            $project->priority ?? 'Normal',
+                            $project->fiscal_year?->year ?? 'N/A',
+                            $project->funding_source?->name ?? 'N/A',
+                            $project->budget_code ?? 'N/A',
+                            $project->office?->name ?? 'N/A',
+                            $project->award_date,
+                            $project->created_at->format('Y-m-d H:i:s'),
+                        ]);
+                    }
+                });
+
+            fclose($handle);
+        }, 200, $headers);
+    }
+
+    /**
+     * Export all contractors/firms to CSV.
+     */
+    public function exportContractorsCsv()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="ncaa_contractors_' . now()->format('Ymd_His') . '.csv"',
+        ];
+
+        return response()->stream(function () {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, ['ID', 'Firm Name', 'Email', 'Classification', 'Phone', 'Created At']);
+
+            \App\Models\Contractor::with(['user', 'firm_type'])
+                ->chunk(200, function ($contractors) use ($handle) {
+                    foreach ($contractors as $contractor) {
+                        fputcsv($handle, [
+                            $contractor->id,
+                            $contractor->user?->name ?? $contractor->name ?? 'N/A',
+                            $contractor->user?->email ?? 'N/A',
+                            $contractor->firm_type?->name ?? 'N/A',
+                            $contractor->phone ?? 'N/A',
+                            $contractor->created_at?->format('Y-m-d H:i:s') ?? 'N/A',
+                        ]);
+                    }
+                });
+
+            fclose($handle);
+        }, 200, $headers);
     }
 }

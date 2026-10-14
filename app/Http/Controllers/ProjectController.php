@@ -14,9 +14,11 @@ use App\Models\ProjectChat;
 use App\Models\ProjectType;
 use App\Models\FiscalYear;
 use App\Models\FundingSource;
+use App\Models\CustomField;
 use App\Models\State;
 use App\Models\TaskImage;
 use App\Services\APIMail;
+use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
@@ -98,8 +100,9 @@ class ProjectController extends Controller
         $project_types = ProjectType::select('id', 'name')->get();
         $fiscal_years = FiscalYear::where('is_active', true)->orderBy('year', 'desc')->get();
         $funding_sources = FundingSource::where('is_active', true)->orderBy('name')->get();
+        $custom_fields = CustomField::where('model_type', 'Project')->where('is_active', true)->orderBy('order')->get();
 
-        return view('projects.create', compact('contractors', 'directorates', 'states', 'personnels', 'roles', 'offices', 'project_types', 'consultants', 'fiscal_years', 'funding_sources'));
+        return view('projects.create', compact('contractors', 'directorates', 'states', 'personnels', 'roles', 'offices', 'project_types', 'consultants', 'fiscal_years', 'funding_sources', 'custom_fields'));
     }
 
     /**
@@ -128,6 +131,8 @@ class ProjectController extends Controller
             $validated['created_by_id'] = auth()->id();
 
             $project = Project::create($validated);
+
+            AuditService::log('created', $project, "Created project '{$project->name}'", null, $project->toArray());
 
             DB::commit();
 
@@ -184,7 +189,8 @@ class ProjectController extends Controller
         $project_types = ProjectType::select('id', 'name')->orderBy('name')->get();
         $fiscal_years = FiscalYear::orderBy('year', 'desc')->get();
         $funding_sources = FundingSource::orderBy('name')->get();
-        return view('projects.edit', compact('project', 'directorates', 'contractors', 'offices', 'departments', 'units', 'consultants', 'project_types', 'fiscal_years', 'funding_sources'));
+        $custom_fields = CustomField::where('model_type', 'Project')->where('is_active', true)->orderBy('order')->get();
+        return view('projects.edit', compact('project', 'directorates', 'contractors', 'offices', 'departments', 'units', 'consultants', 'project_types', 'fiscal_years', 'funding_sources', 'custom_fields'));
     }
 
     /**
@@ -193,6 +199,7 @@ class ProjectController extends Controller
     public function update(UpdateProjectRequest $request, $ulid)
     {
         $project = Project::where('ulid', $ulid)->firstOrFail();
+        $oldValues = $project->toArray();
 
         DB::beginTransaction();
 
@@ -219,6 +226,8 @@ class ProjectController extends Controller
 
             $project->update($validated);
 
+            AuditService::log('updated', $project, "Updated project '{$project->name}'", $oldValues, $project->getChanges());
+
             DB::commit();
 
             return redirect()->route('projects.show', ['ulid' => $project->ulid])->with('success', 'Project updated successfully');
@@ -236,6 +245,8 @@ class ProjectController extends Controller
     public function destroy(Project $project, $ulid)
     {
         $project = Project::where('ulid', $ulid)->firstOrFail();
+
+        AuditService::log('deleted', $project, "Deleted project '{$project->name}'", $project->toArray(), null);
 
         $project->update(['deleted_by' => Auth::id()]);
 

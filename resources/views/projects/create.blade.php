@@ -325,6 +325,66 @@
                                 </div>
                             </div>
 
+                            @if(isset($custom_fields) && $custom_fields->count() > 0)
+                                <!-- Section 5: Custom Configurable Attributes -->
+                                <div class="mb-4 pb-3 border-bottom">
+                                    <h5 class="fw-bold text-dark mb-1"><i class="ti ti-adjustments-alt me-2 text-primary"></i>Custom Attributes & Compliance</h5>
+                                    <p class="text-muted small">Additional configurable parameters specific to this project.</p>
+
+                                    <div class="row g-3">
+                                        @foreach($custom_fields as $field)
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-semibold" for="cf_{{ $field->slug }}">
+                                                    {{ $field->name }}
+                                                    @if($field->is_required)
+                                                        <span class="text-danger">*</span>
+                                                    @endif
+                                                </label>
+
+                                                @if($field->field_type === 'text')
+                                                    <input type="text" class="form-control" id="cf_{{ $field->slug }}" 
+                                                        name="custom_attributes[{{ $field->slug }}]" 
+                                                        value="{{ old('custom_attributes.' . $field->slug) }}"
+                                                        {{ $field->is_required ? 'required' : '' }}>
+                                                @elseif($field->field_type === 'number')
+                                                    <input type="number" step="any" class="form-control" id="cf_{{ $field->slug }}" 
+                                                        name="custom_attributes[{{ $field->slug }}]" 
+                                                        value="{{ old('custom_attributes.' . $field->slug) }}"
+                                                        {{ $field->is_required ? 'required' : '' }}>
+                                                @elseif($field->field_type === 'date')
+                                                    <input type="date" class="form-control" id="cf_{{ $field->slug }}" 
+                                                        name="custom_attributes[{{ $field->slug }}]" 
+                                                        value="{{ old('custom_attributes.' . $field->slug) }}"
+                                                        {{ $field->is_required ? 'required' : '' }}>
+                                                @elseif($field->field_type === 'select')
+                                                    <select class="form-select" id="cf_{{ $field->slug }}" 
+                                                        name="custom_attributes[{{ $field->slug }}]"
+                                                        {{ $field->is_required ? 'required' : '' }}>
+                                                        <option value="">-- Select {{ $field->name }} --</option>
+                                                        @foreach(explode(',', $field->options ?? '') as $opt)
+                                                            @php $opt = trim($opt); @endphp
+                                                            @if(!empty($opt))
+                                                                <option value="{{ $opt }}" {{ old('custom_attributes.' . $field->slug) == $opt ? 'selected' : '' }}>
+                                                                    {{ $opt }}
+                                                                </option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                @elseif($field->field_type === 'textarea')
+                                                    <textarea class="form-control" rows="3" id="cf_{{ $field->slug }}" 
+                                                        name="custom_attributes[{{ $field->slug }}]"
+                                                        {{ $field->is_required ? 'required' : '' }}>{{ old('custom_attributes.' . $field->slug) }}</textarea>
+                                                @endif
+
+                                                @error('custom_attributes.' . $field->slug)
+                                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
                             <div class="d-flex align-items-center gap-3 pt-2">
                                 <button type="submit" id="submit-button" class="btn btn-primary px-4 py-2">
                                     <i class="ti ti-check me-1"></i> Create Project

@@ -248,6 +248,12 @@
                                                 <span class="hide-menu">System Settings</span>
                                             </a>
                                         </li>
+                                        <li class="sidebar-item">
+                                            <a class="sidebar-link" href="{{ route('audit-logs.index') }}"
+                                                aria-expanded="false">
+                                                <span class="hide-menu">Audit Trail</span>
+                                            </a>
+                                        </li>
                                     @endcan
                                 </ul>
                             </li>

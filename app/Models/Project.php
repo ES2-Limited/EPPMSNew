@@ -15,6 +15,7 @@ class Project extends Model
 
     protected $casts = [
         'status' => Status::class,
+        'custom_attributes' => 'array',
     ];
 
     protected $fillable = [
@@ -39,7 +40,8 @@ class Project extends Model
         'priority',
         'fiscal_year_id',
         'funding_source_id',
-        'budget_code'
+        'budget_code',
+        'custom_attributes'
     ];
 
     public function fiscal_year()

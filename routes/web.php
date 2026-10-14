@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\ContractorController;
 use App\Http\Controllers\ContractorPersonnelController;
+use App\Http\Controllers\CustomFieldController;
 use App\Http\Controllers\DBController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DirectorateController;
@@ -139,6 +141,7 @@ Route::middleware(['auth'])->group(function () {
                     Route::get('edit/{ulid}',  'edit')->name('edit');
                     Route::post('store',  'store')->name('store');
                     Route::put('update/{ulid}',  'update')->name('update');
+                    Route::delete('destroy/{ulid}', 'destroy')->name('destroy');
                 });
 
             Route::get('/histogram-data', [ProjectController::class, 'get_histogram_data'])->name('histogram.data');
@@ -203,6 +206,16 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/funding-sources', [FundingSourceController::class, 'store'])->name('funding-sources.store');
             Route::put('/funding-sources/{id}', [FundingSourceController::class, 'update'])->name('funding-sources.update');
             Route::delete('/funding-sources/{id}', [FundingSourceController::class, 'destroy'])->name('funding-sources.destroy');
+
+            Route::post('/custom-fields', [CustomFieldController::class, 'store'])->name('custom-fields.store');
+            Route::put('/custom-fields/{id}', [CustomFieldController::class, 'update'])->name('custom-fields.update');
+            Route::delete('/custom-fields/{id}', [CustomFieldController::class, 'destroy'])->name('custom-fields.destroy');
+
+            Route::get('/audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+            Route::get('/audit-logs/export', [AuditLogController::class, 'exportCsv'])->name('audit-logs.export');
+
+            Route::get('/export/projects', [SettingController::class, 'exportProjectsCsv'])->name('export.projects');
+            Route::get('/export/contractors', [SettingController::class, 'exportContractorsCsv'])->name('export.contractors');
         });
     });
 

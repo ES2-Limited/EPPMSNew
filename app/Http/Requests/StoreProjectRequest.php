@@ -50,7 +50,8 @@ class StoreProjectRequest extends FormRequest
             'office_id' => 'required|exists:offices,id',
             'award_date' => 'required|date',
             'deadline' => 'sometimes|date|after:award_date',
-            'award_letter' => 'nullable|mimes:jpeg,png,jpg,pdf,doc,docx|max:2048'
+            'award_letter' => 'nullable|mimes:jpeg,png,jpg,pdf,doc,docx|max:2048',
+            'custom_attributes' => 'nullable|array'
         ];
     }
 }

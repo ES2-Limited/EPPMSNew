@@ -117,6 +117,18 @@
                             <i class="fas fa-bell me-2 text-primary"></i> Notifications & Alerts
                         </button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-3 px-4 fw-semibold {{ $activeTab === 'custom_fields' ? 'active' : '' }}" 
+                                id="custom_fields-tab" data-bs-toggle="tab" data-bs-target="#custom_fields-pane" type="button" role="tab">
+                            <i class="fas fa-tags me-2 text-primary"></i> Custom Fields Studio
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-3 px-4 fw-semibold {{ $activeTab === 'diagnostics' ? 'active' : '' }}" 
+                                id="diagnostics-tab" data-bs-toggle="tab" data-bs-target="#diagnostics-pane" type="button" role="tab">
+                            <i class="fas fa-server me-2 text-primary"></i> Diagnostics & Exports
+                        </button>
+                    </li>
                 </ul>
             </div>
 
@@ -1193,6 +1205,332 @@
                                 </button>
                             </div>
                         </form>
+                    </div>
+
+                    <!-- TAB 10: CUSTOM FIELDS STUDIO -->
+                    <div class="tab-pane fade {{ $activeTab === 'custom_fields' ? 'show active' : '' }}" id="custom_fields-pane" role="tabpanel">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1" style="color: #01054C;">Custom Fields Studio</h5>
+                                <p class="text-muted small mb-0">Extend projects, contractors, and milestones with dynamic compliance and tracking attributes without touching code.</p>
+                            </div>
+                            <button type="button" class="btn text-white" style="background-color: #01054C;" data-bs-toggle="modal" data-bs-target="#createCustomFieldModal">
+                                <i class="fas fa-plus me-1"></i> Add Custom Field
+                            </button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle border">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">Target Entity</th>
+                                        <th>Field Label</th>
+                                        <th>Attribute Key</th>
+                                        <th>Field Type</th>
+                                        <th>Requirement</th>
+                                        <th>Status</th>
+                                        <th class="text-end pe-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($customFields as $field)
+                                        <tr>
+                                            <td class="ps-3">
+                                                <span class="badge bg-primary-subtle text-primary fw-semibold px-2 py-1">
+                                                    {{ $field->model_type }}
+                                                </span>
+                                            </td>
+                                            <td class="fw-semibold text-dark">{{ $field->name }}</td>
+                                            <td><code class="text-secondary small">{{ $field->slug }}</code></td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border">
+                                                    {{ strtoupper($field->field_type) }}
+                                                </span>
+                                                @if($field->field_type === 'select' && $field->options)
+                                                    <div class="text-muted small mt-1" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ $field->options }}">
+                                                        {{ $field->options }}
+                                                    </div>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($field->is_required)
+                                                    <span class="badge bg-danger-subtle text-danger">Required</span>
+                                                @else
+                                                    <span class="badge bg-secondary-subtle text-secondary">Optional</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($field->is_active)
+                                                    <span class="badge bg-success-subtle text-success">Active</span>
+                                                @else
+                                                    <span class="badge bg-secondary-subtle text-secondary">Inactive</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-end pe-3">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary me-1" 
+                                                        data-bs-toggle="modal" data-bs-target="#editCustomFieldModal{{ $field->id }}" title="Edit Field">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <form action="{{ route('custom-fields.destroy', $field->id) }}" method="POST" class="d-inline"
+                                                      onsubmit="return confirm('Are you sure you want to delete this custom field? Existing data for this field will remain in project records.');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Field">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Edit Modal for {{ $field->id }} -->
+                                        <div class="modal fade" id="editCustomFieldModal{{ $field->id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <form action="{{ route('custom-fields.update', $field->id) }}" method="POST">
+                                                    @csrf
+                                                    @method('PUT')
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title fw-bold">Edit Custom Field: {{ $field->name }}</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-semibold">Target Entity</label>
+                                                                <input type="text" class="form-control bg-light" value="{{ $field->model_type }}" readonly>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-semibold">Field Label <span class="text-danger">*</span></label>
+                                                                <input type="text" name="name" class="form-control" value="{{ $field->name }}" required>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-semibold">Input Type <span class="text-danger">*</span></label>
+                                                                <select name="field_type" class="form-select" required>
+                                                                    <option value="text" {{ $field->field_type === 'text' ? 'selected' : '' }}>Text Input</option>
+                                                                    <option value="number" {{ $field->field_type === 'number' ? 'selected' : '' }}>Number</option>
+                                                                    <option value="date" {{ $field->field_type === 'date' ? 'selected' : '' }}>Date</option>
+                                                                    <option value="select" {{ $field->field_type === 'select' ? 'selected' : '' }}>Dropdown Selection</option>
+                                                                    <option value="textarea" {{ $field->field_type === 'textarea' ? 'selected' : '' }}>Multi-line Text (Textarea)</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label fw-semibold">Dropdown Options</label>
+                                                                <input type="text" name="options" class="form-control" value="{{ $field->options }}" placeholder="Option 1, Option 2, Option 3">
+                                                                <div class="form-text">Comma-separated values (only used when Input Type is Dropdown Selection).</div>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <div class="form-check form-switch mb-2">
+                                                                    <input class="form-check-input" type="checkbox" name="is_required" value="1" id="reqSwitch{{ $field->id }}" {{ $field->is_required ? 'checked' : '' }}>
+                                                                    <label class="form-check-label fw-semibold" for="reqSwitch{{ $field->id }}">Mandatory / Required Field</label>
+                                                                </div>
+                                                                <div class="form-check form-switch">
+                                                                    <input class="form-check-input" type="checkbox" name="is_active" value="1" id="activeSwitch{{ $field->id }}" {{ $field->is_active ? 'checked' : '' }}>
+                                                                    <label class="form-check-label fw-semibold" for="activeSwitch{{ $field->id }}">Field Active</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn text-white" style="background-color: #01054C;">Update Field</button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="text-center py-4 text-muted">
+                                                <i class="fas fa-tags fs-3 mb-2 d-block opacity-50"></i>
+                                                No custom fields registered yet. Click "Add Custom Field" to configure extra project metadata.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Create Custom Field Modal -->
+                        <div class="modal fade" id="createCustomFieldModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <form action="{{ route('custom-fields.store') }}" method="POST">
+                                    @csrf
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title fw-bold">Create New Custom Field</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">Target Entity <span class="text-danger">*</span></label>
+                                                <select name="model_type" class="form-select" required>
+                                                    <option value="Project" selected>Project</option>
+                                                    <option value="Contractor">Contractor</option>
+                                                    <option value="Milestone">Milestone</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">Field Label <span class="text-danger">*</span></label>
+                                                <input type="text" name="name" class="form-control" placeholder="e.g. BPP Clearance Number" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">Input Type <span class="text-danger">*</span></label>
+                                                <select name="field_type" class="form-select" required>
+                                                    <option value="text">Text Input</option>
+                                                    <option value="number">Number</option>
+                                                    <option value="date">Date</option>
+                                                    <option value="select">Dropdown Selection</option>
+                                                    <option value="textarea">Multi-line Text (Textarea)</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label fw-semibold">Dropdown Options</label>
+                                                <input type="text" name="options" class="form-control" placeholder="Option A, Option B, Option C">
+                                                <div class="form-text">Comma-separated values (only used when Input Type is Dropdown Selection).</div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch mb-2">
+                                                    <input class="form-check-input" type="checkbox" name="is_required" value="1" id="createReqSwitch">
+                                                    <label class="form-check-label fw-semibold" for="createReqSwitch">Mandatory / Required Field</label>
+                                                </div>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" name="is_active" value="1" id="createActiveSwitch" checked>
+                                                    <label class="form-check-label fw-semibold" for="createActiveSwitch">Field Active</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn text-white" style="background-color: #01054C;">Save Field</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 11: DIAGNOSTICS & EXPORTS -->
+                    <div class="tab-pane fade {{ $activeTab === 'diagnostics' ? 'show active' : '' }}" id="diagnostics-pane" role="tabpanel">
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-1" style="color: #01054C;">System Health & Diagnostics</h5>
+                            <p class="text-muted small mb-0">Overview of server runtime, framework version, storage links, and live database record volumes.</p>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-3">
+                                <div class="p-3 border rounded-3 bg-light text-center">
+                                    <div class="text-muted small fw-semibold text-uppercase">Environment</div>
+                                    <div class="fs-4 fw-bold text-dark mt-1">PHP {{ $diagnostics['php_version'] }}</div>
+                                    <div class="small text-secondary mt-1">Laravel v{{ $diagnostics['laravel_version'] }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 border rounded-3 bg-light text-center">
+                                    <div class="text-muted small fw-semibold text-uppercase">Database Engine</div>
+                                    <div class="fs-4 fw-bold text-dark mt-1">{{ strtoupper($diagnostics['db_driver']) }}</div>
+                                    <div class="small text-success mt-1"><i class="fas fa-check-circle"></i> Connected</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 border rounded-3 bg-light text-center">
+                                    <div class="text-muted small fw-semibold text-uppercase">Public Storage</div>
+                                    <div class="fs-5 fw-bold {{ $diagnostics['public_storage_symlinked'] ? 'text-success' : 'text-warning' }} mt-1">
+                                        <i class="fas {{ $diagnostics['public_storage_symlinked'] ? 'fa-link' : 'fa-unlink' }} me-1"></i>
+                                        {{ $diagnostics['public_storage_symlinked'] ? 'Linked (Healthy)' : 'Unlinked' }}
+                                    </div>
+                                    <div class="small text-secondary mt-1">public/storage symlink</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 border rounded-3 bg-light text-center">
+                                    <div class="text-muted small fw-semibold text-uppercase">Audit Trail Records</div>
+                                    <div class="fs-4 fw-bold text-primary mt-1">{{ number_format($diagnostics['total_audit_logs']) }}</div>
+                                    <div class="small text-secondary mt-1">
+                                        <a href="{{ route('audit-logs.index') }}" class="text-decoration-none text-primary">View Full Trail &rarr;</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-4">
+                                <div class="card border shadow-none p-3 h-100">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="text-muted fw-semibold">Registered Users</span>
+                                        <i class="fas fa-users text-primary fs-4"></i>
+                                    </div>
+                                    <h3 class="fw-bold mb-0 text-dark">{{ number_format($diagnostics['total_users']) }}</h3>
+                                    <small class="text-muted mt-2">Active personnel, contractors, and administrators</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border shadow-none p-3 h-100">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="text-muted fw-semibold">Total Projects</span>
+                                        <i class="fas fa-project-diagram text-success fs-4"></i>
+                                    </div>
+                                    <h3 class="fw-bold mb-0 text-dark">{{ number_format($diagnostics['total_projects']) }}</h3>
+                                    <small class="text-muted mt-2">Portfolio procurement & infrastructure records</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border shadow-none p-3 h-100">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="text-muted fw-semibold">Milestones Tracked</span>
+                                        <i class="fas fa-flag-checkered text-warning fs-4"></i>
+                                    </div>
+                                    <h3 class="fw-bold mb-0 text-dark">{{ number_format($diagnostics['total_milestones']) }}</h3>
+                                    <small class="text-muted mt-2">Progress deliverables and payment phases</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Universal Data Exporters -->
+                        <div class="card border rounded-3 mt-4">
+                            <div class="card-header bg-white py-3 border-bottom">
+                                <h6 class="fw-bold mb-0 text-dark"><i class="fas fa-file-export me-2 text-primary"></i>Universal Data Exporters</h6>
+                            </div>
+                            <div class="card-body p-4">
+                                <p class="text-muted small mb-4">Export system master datasets into standardized CSV files for off-platform financial auditing, external reporting, and backups.</p>
+
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="p-3 border rounded-3 text-center h-100 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <i class="fas fa-file-csv fs-1 text-success mb-2"></i>
+                                                <h6 class="fw-bold mb-1">Projects Portfolio</h6>
+                                                <p class="text-muted small mb-3">Complete dataset with fiscal year, budget code, cost, status, and contractor details.</p>
+                                            </div>
+                                            <a href="{{ route('export.projects') }}" class="btn btn-outline-success btn-sm w-100">
+                                                <i class="fas fa-download me-1"></i> Export Projects CSV
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 border rounded-3 text-center h-100 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <i class="fas fa-file-csv fs-1 text-info mb-2"></i>
+                                                <h6 class="fw-bold mb-1">Contractors & Firms</h6>
+                                                <p class="text-muted small mb-3">Directory of vendor firms, contacts, emails, classification types, and registered status.</p>
+                                            </div>
+                                            <a href="{{ route('export.contractors') }}" class="btn btn-outline-info btn-sm w-100">
+                                                <i class="fas fa-download me-1"></i> Export Contractors CSV
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 border rounded-3 text-center h-100 d-flex flex-column justify-content-between">
+                                            <div>
+                                                <i class="fas fa-file-csv fs-1 text-primary mb-2"></i>
+                                                <h6 class="fw-bold mb-1">Governance Audit Trail</h6>
+                                                <p class="text-muted small mb-3">Immutable ledger of system events, deletions, updates, IP origins, and user timestamps.</p>
+                                            </div>
+                                            <a href="{{ route('audit-logs.export') }}" class="btn btn-outline-primary btn-sm w-100">
+                                                <i class="fas fa-download me-1"></i> Export Audit Trail CSV
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                 </div>

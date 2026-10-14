@@ -337,6 +337,19 @@
                                 <span class="text-muted"><i class="fas fa-hourglass-half me-2 text-warning"></i> Duration</span>
                                 <span class="fw-semibold text-dark">{{ $project->duration }} {{ $project->duration_period }}</span>
                             </div>
+                            @php
+                                $customFieldsList = \App\Models\CustomField::where('model_type', 'Project')->where('is_active', true)->orderBy('order')->get();
+                            @endphp
+                            @if($customFieldsList->count() > 0 && !empty($project->custom_attributes))
+                                @foreach($customFieldsList as $cf)
+                                    @if(isset($project->custom_attributes[$cf->slug]) && $project->custom_attributes[$cf->slug] !== '')
+                                        <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                            <span class="text-muted"><i class="fas fa-tag me-2 text-info"></i> {{ $cf->name }}</span>
+                                            <span class="fw-semibold text-dark">{{ is_array($project->custom_attributes[$cf->slug]) ? implode(', ', $project->custom_attributes[$cf->slug]) : $project->custom_attributes[$cf->slug] }}</span>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            @endif
                         </div>
                         <div
                             style="
