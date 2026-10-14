@@ -33,3 +33,4 @@ if (! function_exists('setting_asset')) {
         return asset($defaultAssetPath);
     }
 }
+

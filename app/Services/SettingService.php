@@ -68,3 +68,4 @@ class SettingService
         Cache::forget(self::CACHE_KEY);
     }
 }
+
