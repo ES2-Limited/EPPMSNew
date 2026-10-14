@@ -62,15 +62,15 @@ class SettingController extends Controller
             if ($request->hasFile('app_logo')) {
                 $file = $request->file('app_logo');
                 $filename = 'logo_' . time() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('assets/images/custom'), $filename);
-                SettingService::set('app_logo', 'assets/images/custom/' . $filename, 'branding', 'image', 'Primary Brand Logo');
+                Storage::disk('public')->putFileAs('branding', $file, $filename);
+                SettingService::set('app_logo', 'branding/' . $filename, 'branding', 'image', 'Primary Brand Logo');
             }
 
             if ($request->hasFile('app_icon')) {
                 $file = $request->file('app_icon');
                 $filename = 'icon_' . time() . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('assets/images/custom'), $filename);
-                SettingService::set('app_icon', 'assets/images/custom/' . $filename, 'branding', 'image', 'Sidebar & Favicon Icon');
+                Storage::disk('public')->putFileAs('branding', $file, $filename);
+                SettingService::set('app_icon', 'branding/' . $filename, 'branding', 'image', 'Sidebar & Favicon Icon');
             }
         } elseif ($group === 'localization') {
             $request->validate([
